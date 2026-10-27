@@ -75,7 +75,7 @@ export function PestanaDestino({ version, pendientes }: { version: number; pendi
   return (
     <div className="flex flex-col gap-4">
       <div className="grid gap-2 text-sm sm:grid-cols-2">
-        <div className="flex items-start gap-2 rounded-lg border border-emerald-600/40 bg-emerald-50 px-3 py-2 dark:bg-emerald-950/30">
+        <div className="flex items-start gap-2 rounded-lg border border-exito/30 bg-exito-suave px-3 py-2">
           <DatabaseIcon aria-hidden className="mt-0.5 size-4 shrink-0" />
           <p>
             <strong>Datos persistidos:</strong> lectura real de la tabla{" "}

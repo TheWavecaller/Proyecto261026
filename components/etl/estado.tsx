@@ -15,18 +15,18 @@ const ESTADOS: Record<
   en_curso: {
     texto: "En curso",
     icono: LoaderCircleIcon,
-    clase: "border-sky-600/40 bg-sky-50 text-sky-800 dark:bg-sky-950/40 dark:text-sky-300",
+    clase: "border-aviso/30 bg-aviso-suave text-aviso",
   },
   completada: {
     texto: "Completada",
     icono: CircleCheckIcon,
     clase:
-      "border-emerald-600/40 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
+      "border-exito/30 bg-exito-suave text-exito",
   },
   error: {
     texto: "Con errores",
     icono: CircleAlertIcon,
-    clase: "border-destructive/40 bg-destructive/10 text-destructive",
+    clase: "border-destructive/30 bg-destructive/10 text-destructive",
   },
 }
 
@@ -34,23 +34,28 @@ const ESTADOS: Record<
 export function EstadoEtiqueta({
   estado,
   texto,
+  soloIcono = false,
   className,
 }: {
   estado: EstadoFase
   texto?: string
+  /** Muestra solo el icono; el texto queda en el tooltip y para lectores de pantalla. */
+  soloIcono?: boolean
   className?: string
 }) {
   const { texto: base, icono: Icono, clase } = ESTADOS[estado]
   return (
     <span
+      title={soloIcono ? (texto ?? base) : undefined}
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-xs font-medium whitespace-nowrap",
+        "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap",
+        soloIcono && "size-6 justify-center p-0",
         clase,
         className
       )}
     >
       <Icono aria-hidden className={cn("size-3.5", estado === "en_curso" && "animate-spin")} />
-      {texto ?? base}
+      <span className={soloIcono ? "sr-only" : undefined}>{texto ?? base}</span>
     </span>
   )
 }

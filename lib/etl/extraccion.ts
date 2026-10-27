@@ -6,7 +6,7 @@ export const VARIABLES_HORARIAS = [
   "relative_humidity_2m",
   "precipitation",
 ] as const
-export const MAX_DIAS = 31
+export const MAX_DIAS = 365
 /** Primer día disponible en el archivo histórico de Open-Meteo (ERA5). */
 export const FECHA_MINIMA = "1940-01-01"
 

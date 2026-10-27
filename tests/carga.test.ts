@@ -84,9 +84,10 @@ describe("validación del servidor", () => {
 
 describe("validación de la extracción", () => {
   const hoy = new Date("2026-10-26T12:00:00Z")
-  it("acepta septiembre de 2026 y limita a 31 días", () => {
+  it("acepta septiembre de 2026 y limita a 365 días", () => {
     expect(validarExtraccion(["madrid"], "2026-09-01", "2026-09-30", hoy).errores).toEqual([])
-    expect(validarExtraccion(["madrid"], "2026-08-01", "2026-09-01", hoy).errores[0]).toContain("32 días")
+    expect(validarExtraccion(["madrid"], "2025-01-01", "2025-12-31", hoy).errores).toEqual([])
+    expect(validarExtraccion(["madrid"], "2025-01-01", "2026-01-01", hoy).errores[0]).toContain("366 días")
   })
   it("exige ciudades, fechas ordenadas y no futuras", () => {
     expect(validarExtraccion([], "2026-09-01", "2026-09-30", hoy).errores).toHaveLength(1)

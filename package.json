@@ -11,7 +11,8 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:integracion": "vitest run --config vitest.integracion.config.ts"
+    "test:integracion": "vitest run --config vitest.integracion.config.ts",
+    "postinstall": "node scripts/copiar-worker-maplibre.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -19,6 +20,7 @@
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.0",
     "lucide-react": "^1.61.0",
+    "maplibre-gl": "^6.16.0",
     "next": "16.4.2",
     "next-themes": "^0.4.6",
     "react": "19.3.1",

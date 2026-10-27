@@ -38,6 +38,20 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
+    /* Estados: color de texto/icono y fondo suave. */
+    --color-exito: var(--exito);
+    --color-exito-suave: var(--exito-suave);
+    --color-aviso: var(--aviso);
+    --color-aviso-suave: var(--aviso-suave);
+    --color-info: var(--info);
+    --color-info-suave: var(--info-suave);
+    /* Paleta «Pastel Bliss» más un azul grisáceo para agua y lluvia. */
+    --color-rubor: var(--rubor);
+    --color-almendra: var(--almendra);
+    --color-concha: var(--concha);
+    --color-petalo: var(--petalo);
+    --color-melocoton: var(--melocoton);
+    --color-bruma: var(--bruma);
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -48,72 +62,86 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --rubor: #ffb5a7;
+    --almendra: #fcd5ce;
+    --concha: #f8edeb;
+    --petalo: #f9dcc4;
+    --melocoton: #fec89a;
+    --bruma: #c9dde5;
+
+    --background: #fcf8f7;
+    --foreground: #3a2e2b;
+    --card: #ffffff;
+    --card-foreground: #3a2e2b;
+    --popover: #ffffff;
+    --popover-foreground: #3a2e2b;
+    --primary: var(--rubor);
+    --primary-foreground: #3a2e2b;
+    --secondary: var(--petalo);
+    --secondary-foreground: #3a2e2b;
+    --muted: var(--concha);
+    --muted-foreground: #76605b;
+    --accent: var(--almendra);
+    --accent-foreground: #3a2e2b;
+    --destructive: #b8422e;
+    --border: #f0e0db;
+    --input: #e9d6d0;
+    --ring: #f09a88;
+    --exito: #36704f;
+    --exito-suave: #e6f2ea;
+    --aviso: #8a4e17;
+    --aviso-suave: #fff0e0;
+    --info: #2e5d72;
+    --info-suave: #e8f1f4;
+    --chart-1: var(--rubor);
+    --chart-2: var(--melocoton);
+    --chart-3: var(--petalo);
+    --chart-4: var(--almendra);
+    --chart-5: var(--bruma);
+    --radius: 0.75rem;
+    --sidebar: var(--concha);
+    --sidebar-foreground: #3a2e2b;
+    --sidebar-primary: var(--rubor);
+    --sidebar-primary-foreground: #3a2e2b;
+    --sidebar-accent: var(--almendra);
+    --sidebar-accent-foreground: #3a2e2b;
+    --sidebar-border: #f0e0db;
+    --sidebar-ring: #f09a88;
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --bruma: #3f5560;
+
+    --background: #1c1716;
+    --foreground: #f8edeb;
+    --card: #251f1d;
+    --card-foreground: #f8edeb;
+    --popover: #2a2321;
+    --popover-foreground: #f8edeb;
+    --primary: var(--rubor);
+    --primary-foreground: #2a1f1c;
+    --secondary: #3a2d27;
+    --secondary-foreground: var(--petalo);
+    --muted: #2e2624;
+    --muted-foreground: #b9a6a1;
+    --accent: #3d2e2b;
+    --accent-foreground: var(--almendra);
+    --destructive: #f28b78;
+    --border: rgb(255 220 210 / 10%);
+    --input: rgb(255 220 210 / 16%);
+    --ring: #e39383;
+    --exito: #9fd3b4;
+    --exito-suave: #1f2e26;
+    --aviso: var(--melocoton);
+    --aviso-suave: #3a2a1c;
+    --info: #a9cde0;
+    --info-suave: #1e2a31;
+    --sidebar: #251f1d;
+    --sidebar-foreground: #f8edeb;
+    --sidebar-accent: #3d2e2b;
+    --sidebar-accent-foreground: var(--almendra);
+    --sidebar-border: rgb(255 220 210 / 10%);
+    --sidebar-ring: #e39383;
 }
 
 @layer base {
@@ -121,9 +149,51 @@
     @apply border-border outline-ring/50;
     }
   body {
-    @apply bg-background text-foreground;
+    @apply min-h-dvh bg-background text-foreground;
+    /* Brillo pastel muy tenue en las esquinas: da calidez sin teñir el contenido. */
+    background-image:
+      radial-gradient(60rem 30rem at 0% -10%, color-mix(in oklch, var(--rubor) 18%, transparent), transparent 70%),
+      radial-gradient(50rem 28rem at 100% 0%, color-mix(in oklch, var(--melocoton) 14%, transparent), transparent 70%);
+    background-repeat: no-repeat;
     }
   html {
     @apply font-sans;
     }
+}
+
+/* Popup del mapa con los colores del tema (MapLibre lo pinta blanco por defecto). */
+.mapa-popup .maplibregl-popup-content {
+    background: var(--popover);
+    color: var(--popover-foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 0.625rem 0.75rem;
+    box-shadow: 0 8px 24px rgb(58 46 43 / 0.12);
+}
+.mapa-popup .maplibregl-popup-tip {
+    display: none;
+}
+
+/* Controles del mapa a juego con las tarjetas. */
+.maplibregl-ctrl-group {
+    border-radius: var(--radius-md) !important;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgb(58 46 43 / 0.1) !important;
+}
+.dark .maplibregl-ctrl-group {
+    background: var(--card);
+}
+.dark .maplibregl-ctrl-group button + button {
+    border-top-color: var(--border);
+}
+.dark .maplibregl-ctrl-group .maplibregl-ctrl-icon {
+    filter: invert(0.9);
+}
+.dark .maplibregl-ctrl-attrib,
+.dark .maplibregl-ctrl-attrib-button {
+    background-color: var(--card);
+    color: var(--muted-foreground);
+}
+.dark .maplibregl-ctrl-attrib a {
+    color: var(--muted-foreground);
 }

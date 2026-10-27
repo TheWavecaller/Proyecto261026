@@ -30,7 +30,7 @@ export function SinDatos({ children }: { children: React.ReactNode }) {
 function Crudo({ valor }: { valor: unknown }) {
   const problema = typeof valor !== "number" || !Number.isFinite(valor)
   return (
-    <span className={problema ? "rounded bg-amber-100 px-1 font-mono text-amber-900 dark:bg-amber-950 dark:text-amber-200" : undefined}>
+    <span className={problema ? "rounded bg-aviso-suave px-1 font-mono text-aviso" : undefined}>
       {formatearCrudo(valor)}
     </span>
   )

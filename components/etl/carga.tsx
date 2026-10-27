@@ -193,7 +193,7 @@ export function PestanaCarga({
         claveFila={claveMedicion}
         numerar
         etiquetaNumero="Orden"
-        vacio="No hay registros seleccionados dentro de los filtros. Selecciónalos en «Registros válidos»."
+        vacio="No hay registros seleccionados dentro de los filtros. Selecciónalos en el paso 4 · Selección."
       />
     </div>
   )

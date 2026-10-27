@@ -26,6 +26,11 @@ export function formatearNumero(n: number): string {
   return numero.format(n)
 }
 
+const decimal = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+export function formatearDecimal(n: number): string {
+  return decimal.format(n)
+}
+
 /** Huella FNV-1a de 32 bits, suficiente para comprobar que dos listas son idénticas. */
 export function huella(texto: string): string {
   let h = 0x811c9dc5

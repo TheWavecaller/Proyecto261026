@@ -202,7 +202,7 @@ export function PestanaValidos({ etl }: { etl: PipelineEtl }) {
         {etl.fueraDeFiltros > 0 && (
           <div
             role="status"
-            className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950/30 dark:text-amber-200"
+            className="flex flex-wrap items-center gap-2 rounded-lg border border-aviso/30 bg-aviso-suave px-3 py-2 text-sm text-aviso"
           >
             <span>
               <strong>Aviso:</strong> {formatearNumero(etl.fueraDeFiltros)} filas seleccionadas ya no

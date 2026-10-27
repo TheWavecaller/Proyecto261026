@@ -19,6 +19,10 @@ cp .env.example .env.local   # y rellena los valores
 | `NEXT_PUBLIC_SUPABASE_URL` | servidor | URL del proyecto (Project Settings → API) |
 | `SUPABASE_SECRET_KEY` | **solo servidor** | Clave secreta `sb_secret_…` (o la antigua `service_role`). Nunca con el prefijo `NEXT_PUBLIC_` |
 | `ETL_PERMITIR_ESCRITURA` | servidor | En producción la escritura está desactivada salvo que valga `true` (ver Seguridad) |
+| `NEXT_PUBLIC_MAPTILER_KEY` | navegador | Clave de MapTiler para el mapa. Es pública por diseño: restríngela por origen HTTP en cloud.maptiler.com |
+
+El mapa usa MapLibre GL con los estilos `dataviz` / `dataviz-dark` de MapTiler. MapLibre 6 carga su
+*worker* desde un archivo aparte: `npm install` lo copia a `public/` (script `postinstall`).
 
 ### Crear la tabla
 
@@ -44,7 +48,7 @@ npm run typecheck && npm run lint && npm run build
 
 1. **Extracción**: se hace una petición por ciudad, en serie, a
    `https://archive-api.open-meteo.com/v1/archive` con `timezone=GMT`, °C y mm. Cada extracción
-   cubre como máximo 31 días. El JSON original se guarda durante la sesión y se puede descargar.
+   cubre como máximo 365 días. El JSON original se guarda durante la sesión y se puede descargar.
    Si una ciudad falla, se puede reintentar solo esa ciudad; su respuesta sustituye a la anterior,
    así que no se acumulan duplicados.
 2. **Transformación** ([`lib/etl/transformacion.ts`](lib/etl/transformacion.ts)): convierte los
