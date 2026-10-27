@@ -76,9 +76,19 @@ npm run typecheck && npm run lint && npm run build
    Supabase no indica en un upsert qué filas se insertaron y cuáles se actualizaron, así que solo
    se informa de las filas «procesadas».
 
-La pestaña **Datos en Supabase** lee la tabla real a través de `/api/mediciones`, con paginación,
+El paso **6 · Destino** lee la tabla real a través de `/api/mediciones`, con paginación,
 filtros y `ORDER BY` explícito. Una base de datos no garantiza el orden de inserción: el orden de
 lectura hay que pedirlo siempre.
+
+## Despliegue en Vercel
+
+1. En *Settings → Environment Variables* define las variables de la tabla de Instalación.
+   `SUPABASE_SECRET_KEY` como **Secret**; `NEXT_PUBLIC_MAPTILER_KEY` como **Config** (va al
+   navegador por diseño, Vercel avisa si se marca como Secret).
+2. Tras cambiar variables hay que hacer **Redeploy**: solo se aplican en un despliegue nuevo.
+3. La clave de MapTiler solo funciona desde los orígenes permitidos en cloud.maptiler.com
+   (`localhost` y el dominio de producción). Desde las URLs de despliegue o de rama de Vercel el
+   mapa da **403** salvo que se añada un patrón como `<proyecto>-*-<usuario>.vercel.app`.
 
 ## Seguridad
 
