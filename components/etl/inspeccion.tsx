@@ -10,6 +10,8 @@ import type { FilaTransformada, Medicion, Rechazo } from "@/lib/etl/tipos"
 import type { EstadoCiudad, PipelineEtl } from "@/hooks/use-pipeline-etl"
 import { ListaMensajes } from "./campos"
 import { EstadoEtiqueta } from "./estado"
+import { BotonExportar } from "./exportar"
+import { GraficaRechazos } from "./graficas"
 import { TablaPaginada, type Columna } from "./tabla-paginada"
 
 function descargar(nombre: string, datos: unknown) {
@@ -36,13 +38,34 @@ function Crudo({ valor }: { valor: unknown }) {
   )
 }
 
+/** Los id coinciden con los campos de ordenación (CampoOrden) para poder ordenar por cabecera. */
 export const COLUMNAS_MEDICION: Columna<Medicion>[] = [
-  { id: "ciudad", titulo: "Ciudad", celda: (m) => m.ciudad },
-  { id: "fecha", titulo: "Fecha y hora (UTC)", celda: (m) => formatearFechaUtc(m.fecha_hora) },
-  { id: "t", titulo: "Temperatura (°C)", numerica: true, celda: (m) => m.temperatura_c.toFixed(1) },
-  { id: "h", titulo: "Humedad (%)", numerica: true, celda: (m) => m.humedad_pct },
-  { id: "p", titulo: "Precipitación (mm)", numerica: true, celda: (m) => m.precipitacion_mm.toFixed(2) },
+  { id: "ciudad", titulo: "Ciudad", celda: (m) => m.ciudad, valor: (m) => m.ciudad },
+  {
+    id: "fecha_hora",
+    titulo: "Fecha y hora (UTC)",
+    celda: (m) => formatearFechaUtc(m.fecha_hora),
+    valor: (m) => formatearFechaUtc(m.fecha_hora),
+  },
+  {
+    id: "temperatura_c",
+    titulo: "Temperatura (°C)",
+    numerica: true,
+    celda: (m) => m.temperatura_c.toFixed(1),
+    valor: (m) => m.temperatura_c,
+  },
+  { id: "humedad_pct", titulo: "Humedad (%)", numerica: true, celda: (m) => m.humedad_pct, valor: (m) => m.humedad_pct },
+  {
+    id: "precipitacion_mm",
+    titulo: "Precipitación (mm)",
+    numerica: true,
+    celda: (m) => m.precipitacion_mm.toFixed(2),
+    valor: (m) => m.precipitacion_mm,
+  },
 ]
+
+/** Número para ordenar; los valores crudos que no son números quedan al final. */
+const numeroCrudo = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : null)
 
 export function PestanaJson({ etl }: { etl: PipelineEtl }) {
   const ext = etl.extraccion
@@ -146,13 +169,41 @@ export function PestanaJson({ etl }: { etl: PipelineEtl }) {
 }
 
 const COLUMNAS_TRANSFORMADAS: Columna<FilaTransformada>[] = [
-  { id: "ciudad", titulo: "ciudad", celda: (f) => f.ciudad },
-  { id: "i", titulo: "Índice en arrays", numerica: true, celda: (f) => f.indice },
-  { id: "orig", titulo: "time (original)", celda: (f) => <Crudo valor={f.hora_original} /> },
-  { id: "fecha", titulo: "fecha_hora (UTC)", celda: (f) => (f.fecha_hora ? f.fecha_hora : <Crudo valor={null} />) },
-  { id: "t", titulo: "temperatura_c (°C)", numerica: true, celda: (f) => <Crudo valor={f.temperatura_c} /> },
-  { id: "h", titulo: "humedad_pct (%)", numerica: true, celda: (f) => <Crudo valor={f.humedad_pct} /> },
-  { id: "p", titulo: "precipitacion_mm (mm)", numerica: true, celda: (f) => <Crudo valor={f.precipitacion_mm} /> },
+  { id: "ciudad", titulo: "ciudad", celda: (f) => f.ciudad, valor: (f) => f.ciudad },
+  { id: "i", titulo: "Índice en arrays", numerica: true, celda: (f) => f.indice, valor: (f) => f.indice },
+  {
+    id: "orig",
+    titulo: "time (original)",
+    celda: (f) => <Crudo valor={f.hora_original} />,
+    valor: (f) => formatearCrudo(f.hora_original),
+  },
+  {
+    id: "fecha",
+    titulo: "fecha_hora (UTC)",
+    celda: (f) => (f.fecha_hora ? f.fecha_hora : <Crudo valor={null} />),
+    valor: (f) => f.fecha_hora,
+  },
+  {
+    id: "t",
+    titulo: "temperatura_c (°C)",
+    numerica: true,
+    celda: (f) => <Crudo valor={f.temperatura_c} />,
+    valor: (f) => numeroCrudo(f.temperatura_c),
+  },
+  {
+    id: "h",
+    titulo: "humedad_pct (%)",
+    numerica: true,
+    celda: (f) => <Crudo valor={f.humedad_pct} />,
+    valor: (f) => numeroCrudo(f.humedad_pct),
+  },
+  {
+    id: "p",
+    titulo: "precipitacion_mm (mm)",
+    numerica: true,
+    celda: (f) => <Crudo valor={f.precipitacion_mm} />,
+    valor: (f) => numeroCrudo(f.precipitacion_mm),
+  },
 ]
 
 export function PestanaTransformados({ etl }: { etl: PipelineEtl }) {
@@ -169,6 +220,14 @@ export function PestanaTransformados({ etl }: { etl: PipelineEtl }) {
         filas={p.transformadas}
         columnas={COLUMNAS_TRANSFORMADAS}
         claveFila={(f) => `${f.ciudad}|${f.indice}`}
+        buscar
+        acciones={
+          <BotonExportar
+            nombre="transformados"
+            total={p.transformadas.length}
+            obtener={() => p.transformadas as unknown as Record<string, unknown>[]}
+          />
+        }
         vacio="No hay registros transformados."
       />
     </div>
@@ -179,20 +238,50 @@ const COLUMNAS_RECHAZADOS: Columna<Rechazo>[] = [
   {
     id: "tipo",
     titulo: "Tipo",
+    valor: (r) => (r.tipo === "duplicado" ? "Duplicado" : "Calidad"),
     celda: (r) => (
       <Badge variant={r.tipo === "duplicado" ? "secondary" : "destructive"}>
         {r.tipo === "duplicado" ? "Duplicado" : "Calidad"}
       </Badge>
     ),
   },
-  { id: "ciudad", titulo: "Ciudad", celda: (r) => r.fila.ciudad || <Crudo valor={r.fila.ciudad} /> },
-  { id: "orig", titulo: "time (original)", celda: (r) => <Crudo valor={r.fila.hora_original} /> },
-  { id: "t", titulo: "Temp. (°C)", numerica: true, celda: (r) => <Crudo valor={r.fila.temperatura_c} /> },
-  { id: "h", titulo: "Hum. (%)", numerica: true, celda: (r) => <Crudo valor={r.fila.humedad_pct} /> },
-  { id: "p", titulo: "Prec. (mm)", numerica: true, celda: (r) => <Crudo valor={r.fila.precipitacion_mm} /> },
+  {
+    id: "ciudad",
+    titulo: "Ciudad",
+    celda: (r) => r.fila.ciudad || <Crudo valor={r.fila.ciudad} />,
+    valor: (r) => r.fila.ciudad,
+  },
+  {
+    id: "orig",
+    titulo: "time (original)",
+    celda: (r) => <Crudo valor={r.fila.hora_original} />,
+    valor: (r) => formatearCrudo(r.fila.hora_original),
+  },
+  {
+    id: "t",
+    titulo: "Temp. (°C)",
+    numerica: true,
+    celda: (r) => <Crudo valor={r.fila.temperatura_c} />,
+    valor: (r) => numeroCrudo(r.fila.temperatura_c),
+  },
+  {
+    id: "h",
+    titulo: "Hum. (%)",
+    numerica: true,
+    celda: (r) => <Crudo valor={r.fila.humedad_pct} />,
+    valor: (r) => numeroCrudo(r.fila.humedad_pct),
+  },
+  {
+    id: "p",
+    titulo: "Prec. (mm)",
+    numerica: true,
+    celda: (r) => <Crudo valor={r.fila.precipitacion_mm} />,
+    valor: (r) => numeroCrudo(r.fila.precipitacion_mm),
+  },
   {
     id: "motivo",
     titulo: "Motivo del rechazo",
+    valor: (r) => r.motivos.join(" · "),
     className: "min-w-64 whitespace-normal",
     celda: (r) => (
       <ul className="list-disc pl-4">
@@ -216,10 +305,21 @@ export function PestanaRechazados({ etl }: { etl: PipelineEtl }) {
         de ciudad y fecha_hora se conserva la primera aparición. Los registros que solo quedan fuera
         por los filtros <em>no</em> aparecen aquí: siguen siendo válidos.
       </p>
+      <GraficaRechazos rechazados={p.rechazados} />
       <TablaPaginada
         filas={p.rechazados}
         columnas={COLUMNAS_RECHAZADOS}
         claveFila={(r) => `${r.fila.ciudad}|${r.fila.indice}|${r.tipo}`}
+        buscar
+        acciones={
+          <BotonExportar
+            nombre="rechazados"
+            total={p.rechazados.length}
+            obtener={() =>
+              p.rechazados.map(({ tipo, motivos, fila }) => ({ tipo, ...fila, motivos: motivos.join(" | ") }))
+            }
+          />
+        }
         vacio="Ningún registro rechazado: todas las filas superaron la limpieza."
       />
     </div>

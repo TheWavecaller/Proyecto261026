@@ -1,5 +1,6 @@
 import { CloudSunIcon } from "lucide-react"
 
+import { BotonAyuda } from "@/components/ayuda"
 import { BotonTema } from "@/components/boton-tema"
 import { BancoTrabajo } from "@/components/etl/banco-trabajo"
 
@@ -25,7 +26,10 @@ export default function Page() {
             transforman, limpian y cargan en la base de datos.
           </p>
         </div>
-        <BotonTema />
+        <div className="flex shrink-0 gap-2">
+          <BotonAyuda />
+          <BotonTema />
+        </div>
       </header>
       <BancoTrabajo />
     </main>

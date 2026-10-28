@@ -1,14 +1,16 @@
 "use client"
 
-import { DownloadIcon, RotateCwIcon, UploadCloudIcon } from "lucide-react"
+import { RotateCwIcon, UploadCloudIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress"
 import { huellaMediciones } from "@/lib/etl/carga"
 import { formatearDuracion, formatearNumero } from "@/lib/etl/formato"
 import { claveMedicion } from "@/lib/etl/limpieza"
-import type { PipelineEtl } from "@/hooks/use-pipeline-etl"
+import type { Carga, PipelineEtl } from "@/hooks/use-pipeline-etl"
 import { ListaMensajes } from "./campos"
 import { EstadoEtiqueta } from "./estado"
+import { BotonExportar } from "./exportar"
 import { COLUMNAS_MEDICION, SinDatos } from "./inspeccion"
 import { TablaPaginada } from "./tabla-paginada"
 
@@ -25,6 +27,26 @@ const ESTADO_LOTE = {
   completado: "completada",
   error: "error",
 } as const
+
+/** Registros de los lotes ya terminados (bien o mal) sobre el total de la carga. */
+export function progresoCarga(carga: Carga) {
+  const terminados = carga.lotes
+    .filter((l) => l.estado === "completado" || l.estado === "error")
+    .reduce((t, l) => t + l.registros.length, 0)
+  return { terminados, porcentaje: carga.total === 0 ? 100 : (terminados / carga.total) * 100 }
+}
+
+export function ProgresoCarga({ carga, className }: { carga: Carga; className?: string }) {
+  const { terminados, porcentaje } = progresoCarga(carga)
+  return (
+    <Progress value={porcentaje} className={className}>
+      <ProgressLabel className="text-xs font-normal text-muted-foreground">
+        {formatearNumero(terminados)} de {formatearNumero(carga.total)} registros enviados
+      </ProgressLabel>
+      <ProgressValue className="text-xs" />
+    </Progress>
+  )
+}
 
 export function PestanaCarga({
   etl,
@@ -109,22 +131,6 @@ export function PestanaCarga({
             Comprobar conexión de nuevo
           </Button>
         )}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="ml-auto"
-          disabled={paraSubir.length === 0}
-          onClick={() => {
-            const blob = new Blob([JSON.stringify(paraSubir, null, 2)], { type: "application/json" })
-            const url = URL.createObjectURL(blob)
-            const a = Object.assign(document.createElement("a"), { href: url, download: "vista-previa-carga.json" })
-            a.click()
-            URL.revokeObjectURL(url)
-          }}
-        >
-          <DownloadIcon data-icon="inline-start" />
-          Descargar vista previa (JSON)
-        </Button>
       </div>
 
       {carga && (
@@ -134,6 +140,7 @@ export function PestanaCarga({
             <EstadoEtiqueta estado={carga.estado} />
             <span className="text-muted-foreground tabular-nums">{formatearDuracion(carga.duracionMs)}</span>
           </div>
+          <ProgresoCarga carga={carga} />
           <p className="text-xs text-muted-foreground">
             Copia congelada al pulsar el botón: {formatearNumero(carga.total)} registros · huella vista
             previa <code className="font-mono">{carga.huellaVistaPrevia}</code> · huella enviada{" "}
@@ -193,6 +200,15 @@ export function PestanaCarga({
         claveFila={claveMedicion}
         numerar
         etiquetaNumero="Orden"
+        ordenable={false}
+        buscar
+        acciones={
+          <BotonExportar
+            nombre="vista-previa-carga"
+            total={paraSubir.length}
+            obtener={() => paraSubir as unknown as Record<string, unknown>[]}
+          />
+        }
         vacio="No hay registros seleccionados dentro de los filtros. Selecciónalos en el paso 4 · Selección."
       />
     </div>

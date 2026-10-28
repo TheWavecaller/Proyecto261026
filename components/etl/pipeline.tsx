@@ -1,6 +1,8 @@
 "use client"
 
+import type * as React from "react"
 import {
+  ArrowRightIcon,
   DatabaseIcon,
   DownloadCloudIcon,
   ListFilterIcon,
@@ -10,6 +12,8 @@ import {
   type LucideIcon,
 } from "lucide-react"
 
+import { Termino } from "@/components/ayuda"
+import { Button } from "@/components/ui/button"
 import { TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { formatearDuracion, formatearNumero } from "@/lib/etl/formato"
@@ -27,7 +31,7 @@ export interface Fase {
   icono: LucideIcon
   /** Título del panel de datos que abre el paso. */
   titulo: string
-  explicacion: string
+  explicacion: React.ReactNode
   estado: EstadoFase
   textoEstado?: string
   /** Cifra principal que muestra el paso. */
@@ -84,8 +88,12 @@ export function calcularFases(etl: PipelineEtl, servidor: EstadoServidor | null)
       nombre: "Transformación",
       icono: ShuffleIcon,
       titulo: "Registros transformados",
-      explicacion:
-        "Los arrays paralelos de «hourly» se convierten en un registro por ciudad y hora (UTC). No se corrige ningún valor.",
+      explicacion: (
+        <>
+          Los <Termino id="paralelos">arrays paralelos</Termino> de «hourly» se convierten en un registro
+          por ciudad y hora (<Termino id="utc" />). No se corrige ningún valor.
+        </>
+      ),
       estado: procesadoEstado(),
       valor: p?.transformadas.length,
       unidad: "registros horarios",
@@ -100,8 +108,12 @@ export function calcularFases(etl: PipelineEtl, servidor: EstadoServidor | null)
       nombre: "Limpieza",
       icono: SparklesIcon,
       titulo: "Registros rechazados",
-      explicacion:
-        "Se validan tipos, rangos y fechas, y se eliminan duplicados. Nada se convierte en cero: lo que no es válido se rechaza con su motivo.",
+      explicacion: (
+        <>
+          Se validan tipos, rangos y fechas, y se eliminan <Termino id="duplicado">duplicados</Termino>. Nada
+          se convierte en cero: lo que no es válido se rechaza con su motivo.
+        </>
+      ),
       estado: procesadoEstado(),
       valor: p?.validos.length,
       unidad: p ? `válidos · ${formatearNumero(p.rechazados.length)} rechazados` : "válidos",
@@ -142,8 +154,12 @@ export function calcularFases(etl: PipelineEtl, servidor: EstadoServidor | null)
       nombre: "Carga",
       icono: UploadCloudIcon,
       titulo: "Vista previa de la carga",
-      explicacion:
-        "Upsert en Supabase por lotes de 500 desde el servidor y verificación posterior en destino.",
+      explicacion: (
+        <>
+          <Termino id="upsert" /> en Supabase por <Termino id="lote">lotes</Termino> de 500 desde el servidor
+          y verificación posterior en destino.
+        </>
+      ),
       estado: carga?.estado ?? "pendiente",
       valor: carga ? procesados : undefined,
       unidad: "procesados",
@@ -158,8 +174,12 @@ export function calcularFases(etl: PipelineEtl, servidor: EstadoServidor | null)
       nombre: "Destino",
       icono: DatabaseIcon,
       titulo: "Datos en Supabase",
-      explicacion:
-        "Lectura real de la tabla en Supabase. Una base de datos no garantiza el orden de inserción: el orden se pide siempre con ORDER BY.",
+      explicacion: (
+        <>
+          Lectura real de la tabla en Supabase. Una base de datos no garantiza el orden de inserción: el orden
+          se pide siempre con <Termino id="orderby" />.
+        </>
+      ),
       estado: !servidor ? "en_curso" : servidor.listo ? "completada" : "error",
       textoEstado: !servidor ? "Comprobando" : servidor.listo ? "Conectado" : "Sin conexión",
       valor: servidor?.total,
@@ -213,7 +233,15 @@ export function PasosPipeline({ fases }: { fases: Fase[] }) {
 }
 
 /** Explicación y métricas del paso abierto, encima de sus datos. */
-export function CabeceraFase({ fase }: { fase: Fase }) {
+export function CabeceraFase({
+  fase,
+  siguiente,
+  alSiguiente,
+}: {
+  fase: Fase
+  siguiente?: Fase
+  alSiguiente?: () => void
+}) {
   const Icono = fase.icono
   const metricas = [
     fase.entrada && { texto: "Entrada", valor: fase.entrada },
@@ -240,16 +268,24 @@ export function CabeceraFase({ fase }: { fase: Fase }) {
           ))}
         </div>
       </div>
-      {metricas.length > 0 && (
-        <dl className="flex shrink-0 flex-wrap gap-2 text-xs">
-          {metricas.map((m) => (
-            <div key={m.texto} className="rounded-xl bg-muted px-3 py-1.5">
-              <dt className="text-muted-foreground">{m.texto}</dt>
-              <dd className="font-medium tabular-nums">{m.valor}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
+      <div className="flex shrink-0 flex-col gap-2 lg:items-end">
+        {metricas.length > 0 && (
+          <dl className="flex flex-wrap gap-2 text-xs">
+            {metricas.map((m) => (
+              <div key={m.texto} className="rounded-xl bg-muted px-3 py-1.5">
+                <dt className="text-muted-foreground">{m.texto}</dt>
+                <dd className="font-medium tabular-nums">{m.valor}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {siguiente && alSiguiente && (
+          <Button variant="ghost" size="sm" onClick={alSiguiente} className="self-start rounded-full lg:self-end">
+            Siguiente: {siguiente.numero}. {siguiente.nombre}
+            <ArrowRightIcon data-icon="inline-end" />
+          </Button>
+        )}
+      </div>
     </div>
   )
 }

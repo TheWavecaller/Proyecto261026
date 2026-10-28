@@ -80,6 +80,17 @@ El paso **6 · Destino** lee la tabla real a través de `/api/mediciones`, con p
 filtros y `ORDER BY` explícito. Una base de datos no garantiza el orden de inserción: el orden de
 lectura hay que pedirlo siempre.
 
+## Trabajar con los datos
+
+- **Exportar**: cada tabla tiene un botón para descargar CSV (comas, UTF-8 con BOM, fechas ISO
+  en UTC) o JSON. En Destino se descarga toda la consulta, leyendo de 1000 en 1000 filas.
+  Con pandas: `pd.read_csv("validos-filtrados.csv", parse_dates=["fecha_hora"])`.
+- **Gráficas**: en Selección, evolución por ciudad de los registros filtrados (por hora hasta
+  7 días; si no, media diaria o lluvia total diaria). En Limpieza, recuento por motivo de rechazo.
+- **Tablas**: ordenar pulsando la cabecera, buscar, elegir columnas y filas por página.
+- **Configuración**: las ciudades y el periodo se recuerdan en el navegador (`localStorage`).
+- El botón **?** abre una guía con los pasos y un glosario.
+
 ## Despliegue en Vercel
 
 1. En *Settings → Environment Variables* define las variables de la tabla de Instalación.

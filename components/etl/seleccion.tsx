@@ -6,28 +6,48 @@ import { CheckSquareIcon, FilterXIcon, SquareIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import { Slider } from "@/components/ui/slider"
 import { interpretarFiltros, type Filtros } from "@/lib/etl/filtros"
 import { formatearNumero } from "@/lib/etl/formato"
 import { claveMedicion } from "@/lib/etl/limpieza"
-import type { CampoOrden } from "@/lib/etl/tipos"
+import type { CampoOrden, Medicion } from "@/lib/etl/tipos"
 import type { PipelineEtl } from "@/hooks/use-pipeline-etl"
-import { Campo, ListaMensajes, Selector } from "./campos"
+import { Campo, ListaMensajes } from "./campos"
+import { BotonExportar } from "./exportar"
+import { GraficaMediciones } from "./graficas"
 import { COLUMNAS_MEDICION, SinDatos } from "./inspeccion"
-import { TablaPaginada } from "./tabla-paginada"
+import { siguienteOrden, TablaPaginada } from "./tabla-paginada"
 
-export const CAMPOS_ORDEN: { valor: CampoOrden; texto: string }[] = [
-  { valor: "ciudad", texto: "Ciudad" },
-  { valor: "fecha_hora", texto: "Fecha y hora" },
-  { valor: "temperatura_c", texto: "Temperatura" },
-  { valor: "humedad_pct", texto: "Humedad" },
-  { valor: "precipitacion_mm", texto: "Precipitación" },
-]
+type Limites = Record<"temperatura_c" | "humedad_pct" | "precipitacion_mm", { min: number; max: number }>
 
+/** Mínimo y máximo de cada medida en los registros válidos, redondeados hacia fuera al paso. */
+function calcularLimites(validos: readonly Medicion[]): Limites {
+  const l: Limites = {
+    temperatura_c: { min: Infinity, max: -Infinity },
+    humedad_pct: { min: Infinity, max: -Infinity },
+    precipitacion_mm: { min: Infinity, max: -Infinity },
+  }
+  for (const m of validos) {
+    for (const k of Object.keys(l) as (keyof Limites)[]) {
+      l[k].min = Math.min(l[k].min, m[k])
+      l[k].max = Math.max(l[k].max, m[k])
+    }
+  }
+  for (const k of Object.keys(l) as (keyof Limites)[]) {
+    if (!Number.isFinite(l[k].min)) l[k] = { min: 0, max: 0 }
+    else l[k] = { min: Math.floor(l[k].min), max: Math.ceil(l[k].max) }
+  }
+  return l
+}
+
+/** Rango con slider de doble mano e inputs numéricos. En un extremo, el filtro queda vacío. */
 function Rango({
   etiqueta,
   unidad,
   min,
   max,
+  limites,
+  paso,
   alCambiar,
   id,
 }: {
@@ -35,19 +55,44 @@ function Rango({
   unidad: string
   min: string
   max: string
+  limites: { min: number; max: number }
+  paso: number
   alCambiar: (min: string, max: string) => void
   id: string
 }) {
+  const numero = (texto: string, defecto: number) => {
+    const n = Number(texto.replace(",", "."))
+    return texto.trim() === "" || !Number.isFinite(n) ? defecto : Math.min(limites.max, Math.max(limites.min, n))
+  }
+  const valor = [numero(min, limites.min), numero(max, limites.max)]
+  const decimales = paso < 1 ? 1 : 0
   return (
-    <fieldset className="flex min-w-0 flex-col gap-1">
+    <fieldset className="flex min-w-0 flex-col gap-2">
       <legend className="mb-1 text-xs font-medium text-muted-foreground">
         {etiqueta} ({unidad})
       </legend>
+      <Slider
+        aria-label={`${etiqueta} (${unidad})`}
+        min={limites.min}
+        max={limites.max}
+        step={paso}
+        minStepsBetweenValues={0}
+        value={valor}
+        disabled={limites.min === limites.max}
+        onValueChange={(v) => {
+          const [a, b] = v as number[]
+          alCambiar(
+            a <= limites.min ? "" : a.toFixed(decimales),
+            b >= limites.max ? "" : b.toFixed(decimales)
+          )
+        }}
+        className="px-1.5"
+      />
       <div className="flex items-center gap-1">
         <Input
           id={`${id}-min`}
           inputMode="decimal"
-          placeholder="mín."
+          placeholder={String(limites.min)}
           aria-label={`${etiqueta} mínima (${unidad})`}
           value={min}
           onChange={(e) => alCambiar(e.target.value, max)}
@@ -56,7 +101,7 @@ function Rango({
         <Input
           id={`${id}-max`}
           inputMode="decimal"
-          placeholder="máx."
+          placeholder={String(limites.max)}
           aria-label={`${etiqueta} máxima (${unidad})`}
           value={max}
           onChange={(e) => alCambiar(min, e.target.value)}
@@ -75,6 +120,7 @@ export function PestanaValidos({ etl }: { etl: PipelineEtl }) {
     () => [...new Set((p?.validos ?? []).map((m) => m.ciudad))],
     [p]
   )
+  const limites = React.useMemo(() => calcularLimites(p?.validos ?? []), [p])
   const seleccion = React.useMemo(
     () => ({ seleccionadas: etl.seleccion, alternar: etl.alternarSeleccion }),
     [etl.seleccion, etl.alternarSeleccion]
@@ -87,6 +133,7 @@ export function PestanaValidos({ etl }: { etl: PipelineEtl }) {
       <p className="text-sm text-muted-foreground">
         Orden de operaciones: <strong>válidos → filtros → ordenación → selección → carga</strong>. La
         paginación solo cambia lo que ves; los filtros y el orden se aplican sobre todos los registros.
+        Pulsa la cabecera de una columna para ordenar.
       </p>
 
       <section aria-label="Filtros" className="flex flex-col gap-3 rounded-xl border p-3">
@@ -128,6 +175,8 @@ export function PestanaValidos({ etl }: { etl: PipelineEtl }) {
             unidad="°C"
             min={filtros.temperaturaMin}
             max={filtros.temperaturaMax}
+            limites={limites.temperatura_c}
+            paso={0.5}
             alCambiar={(a, b) => cambiar({ temperaturaMin: a, temperaturaMax: b })}
           />
           <Rango
@@ -136,6 +185,8 @@ export function PestanaValidos({ etl }: { etl: PipelineEtl }) {
             unidad="%"
             min={filtros.humedadMin}
             max={filtros.humedadMax}
+            limites={limites.humedad_pct}
+            paso={1}
             alCambiar={(a, b) => cambiar({ humedadMin: a, humedadMax: b })}
           />
           <Rango
@@ -144,6 +195,8 @@ export function PestanaValidos({ etl }: { etl: PipelineEtl }) {
             unidad="mm"
             min={filtros.precipitacionMin}
             max={filtros.precipitacionMax}
+            limites={limites.precipitacion_mm}
+            paso={0.1}
             alCambiar={(a, b) => cambiar({ precipitacionMin: a, precipitacionMax: b })}
           />
         </div>
@@ -152,34 +205,11 @@ export function PestanaValidos({ etl }: { etl: PipelineEtl }) {
             <Checkbox checked={filtros.soloLluvia} onCheckedChange={(v) => cambiar({ soloLluvia: v })} />
             Solo registros con lluvia (precipitación &gt; 0 mm)
           </label>
-          <div className="ml-auto flex items-end gap-2">
-            <Campo etiqueta="Ordenar por" htmlFor="orden-campo">
-              <Selector
-                id="orden-campo"
-                value={etl.orden.campo}
-                onChange={(e) => etl.setOrden({ ...etl.orden, campo: e.target.value as CampoOrden })}
-              >
-                {CAMPOS_ORDEN.map((c) => (
-                  <option key={c.valor} value={c.valor}>
-                    {c.texto}
-                  </option>
-                ))}
-              </Selector>
-            </Campo>
-            <Campo etiqueta="Dirección" htmlFor="orden-dir">
-              <Selector
-                id="orden-dir"
-                value={etl.orden.direccion}
-                onChange={(e) => etl.setOrden({ ...etl.orden, direccion: e.target.value as "asc" | "desc" })}
-              >
-                <option value="asc">Ascendente</option>
-                <option value="desc">Descendente</option>
-              </Selector>
-            </Campo>
-          </div>
         </div>
         <ListaMensajes mensajes={errores} tono="aviso" />
       </section>
+
+      <GraficaMediciones filas={etl.filtradas} />
 
       <section aria-label="Selección" className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2 text-sm" aria-live="polite">
@@ -220,6 +250,22 @@ export function PestanaValidos({ etl }: { etl: PipelineEtl }) {
           claveFila={claveMedicion}
           seleccion={seleccion}
           numerar
+          orden={{
+            columna: etl.orden.campo,
+            direccion: etl.orden.direccion,
+            alCambiar: (c) => {
+              const o = siguienteOrden({ columna: etl.orden.campo, direccion: etl.orden.direccion }, c)
+              etl.setOrden({ campo: o.columna as CampoOrden, direccion: o.direccion })
+            },
+          }}
+          acciones={
+            <BotonExportar
+              nombre="validos-filtrados"
+              etiqueta="Exportar filtrados"
+              total={etl.filtradas.length}
+              obtener={() => etl.filtradas as unknown as Record<string, unknown>[]}
+            />
+          }
           vacio="Ningún registro válido cumple los filtros actuales."
         />
       </section>

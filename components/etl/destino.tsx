@@ -16,10 +16,10 @@ import {
 import { CIUDADES } from "@/lib/etl/ciudades"
 import { formatearFechaUtc, formatearNumero } from "@/lib/etl/formato"
 import { Campo, ListaMensajes, Selector } from "./campos"
-import { CAMPOS_ORDEN } from "./seleccion"
-import { Paginacion } from "./tabla-paginada"
+import { BotonExportar } from "./exportar"
+import { CabeceraOrdenable, Paginacion, siguienteOrden, type Direccion } from "./tabla-paginada"
 
-interface FilaDestino {
+interface FilaDestino extends Record<string, unknown> {
   id: number
   ciudad: string
   fecha_hora: string
@@ -29,13 +29,37 @@ interface FilaDestino {
   importado_en: string
 }
 
+const COLUMNAS_DESTINO = [
+  { campo: "ciudad", titulo: "Ciudad" },
+  { campo: "fecha_hora", titulo: "Fecha y hora (UTC)" },
+  { campo: "temperatura_c", titulo: "Temperatura (°C)", numerica: true },
+  { campo: "humedad_pct", titulo: "Humedad (%)", numerica: true },
+  { campo: "precipitacion_mm", titulo: "Precipitación (mm)", numerica: true },
+  { campo: "importado_en", titulo: "Importado en (UTC)" },
+]
+
+/** Lee todas las páginas de la consulta (mismos filtros y orden), de 1000 en 1000 y en serie. */
+async function leerTodo(params: URLSearchParams): Promise<FilaDestino[]> {
+  const filas: FilaDestino[] = []
+  const q = new URLSearchParams(params)
+  q.set("tam", "1000")
+  for (let pagina = 0; ; pagina++) {
+    q.set("pagina", String(pagina))
+    const res = await fetch(`/api/mediciones?${q}`, { cache: "no-store" })
+    const cuerpo = await res.json()
+    if (!res.ok) throw new Error(cuerpo.error ?? `HTTP ${res.status}`)
+    filas.push(...cuerpo.filas)
+    if (cuerpo.filas.length < 1000 || filas.length >= cuerpo.total) return filas
+  }
+}
+
 /** Lectura real de la tabla a través del servidor. Nada de lo que se ve aquí es estado local. */
 export function PestanaDestino({ version, pendientes }: { version: number; pendientes: number }) {
   const [ciudad, setCiudad] = React.useState("")
   const [desde, setDesde] = React.useState("")
   const [hasta, setHasta] = React.useState("")
   const [orden, setOrden] = React.useState("fecha_hora")
-  const [dir, setDir] = React.useState<"asc" | "desc">("asc")
+  const [dir, setDir] = React.useState<Direccion>("asc")
   const [pagina, setPagina] = React.useState(0)
   const [tamano, setTamano] = React.useState(25)
   const [recarga, setRecarga] = React.useState(0)
@@ -106,27 +130,26 @@ export function PestanaDestino({ version, pendientes }: { version: number; pendi
         <Campo etiqueta="Hasta (UTC)" htmlFor="destino-hasta">
           <Input id="destino-hasta" type="datetime-local" value={hasta} onChange={(e) => filtrar(setHasta)(e.target.value)} />
         </Campo>
-        <Campo etiqueta="Ordenar por (ORDER BY)" htmlFor="destino-orden">
-          <Selector id="destino-orden" value={orden} onChange={(e) => filtrar(setOrden)(e.target.value)}>
-            {CAMPOS_ORDEN.map((c) => (
-              <option key={c.valor} value={c.valor}>
-                {c.texto}
-              </option>
-            ))}
-            <option value="importado_en">Importado en</option>
-          </Selector>
-        </Campo>
-        <Campo etiqueta="Dirección" htmlFor="destino-dir">
-          <Selector id="destino-dir" value={dir} onChange={(e) => filtrar(setDir)(e.target.value as "asc" | "desc")}>
-            <option value="asc">Ascendente</option>
-            <option value="desc">Descendente</option>
-          </Selector>
-        </Campo>
-        <Button variant="outline" onClick={() => setRecarga((n) => n + 1)} disabled={cargando}>
-          <RefreshCwIcon data-icon="inline-start" className={cargando ? "animate-spin" : undefined} />
-          Actualizar
-        </Button>
+        <div className="flex flex-wrap items-end gap-2 sm:col-span-3 lg:col-span-3 lg:justify-end">
+          <Button variant="outline" onClick={() => setRecarga((n) => n + 1)} disabled={cargando}>
+            <RefreshCwIcon data-icon="inline-start" className={cargando ? "animate-spin" : undefined} />
+            Actualizar
+          </Button>
+          <BotonExportar
+            nombre="supabase-mediciones"
+            etiqueta="Exportar tabla"
+            total={resultado?.total ?? 0}
+            obtener={() => leerTodo(params)}
+          />
+        </div>
       </div>
+
+      <p className="text-xs text-muted-foreground">
+        Pulsa la cabecera de una columna para ordenar. Consulta enviada:{" "}
+        <code className="rounded bg-muted px-1.5 py-0.5 font-mono">
+          ORDER BY {orden} {dir.toUpperCase()}, id ASC
+        </code>
+      </p>
 
       {error && <ListaMensajes tono="error" mensajes={[error]} />}
       {resultado && (
@@ -141,12 +164,20 @@ export function PestanaDestino({ version, pendientes }: { version: number; pendi
           <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead className="text-right">id</TableHead>
-              <TableHead>Ciudad</TableHead>
-              <TableHead>Fecha y hora (UTC)</TableHead>
-              <TableHead className="text-right">Temperatura (°C)</TableHead>
-              <TableHead className="text-right">Humedad (%)</TableHead>
-              <TableHead className="text-right">Precipitación (mm)</TableHead>
-              <TableHead>Importado en (UTC)</TableHead>
+              {COLUMNAS_DESTINO.map((c) => (
+                <CabeceraOrdenable
+                  key={c.campo}
+                  titulo={c.titulo}
+                  numerica={c.numerica}
+                  direccion={orden === c.campo ? dir : null}
+                  alPulsar={() => {
+                    const o = siguienteOrden({ columna: orden, direccion: dir }, c.campo)
+                    setOrden(o.columna)
+                    setDir(o.direccion)
+                    setPagina(0)
+                  }}
+                />
+              ))}
             </TableRow>
           </TableHeader>
           <TableBody>

@@ -52,6 +52,12 @@
     --color-petalo: var(--petalo);
     --color-melocoton: var(--melocoton);
     --color-bruma: var(--bruma);
+    /* Series de las gráficas: una por ciudad, en orden fijo (validadas para daltonismo). */
+    --color-serie-1: var(--serie-1);
+    --color-serie-2: var(--serie-2);
+    --color-serie-3: var(--serie-3);
+    --color-serie-4: var(--serie-4);
+    --color-serie-5: var(--serie-5);
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -98,6 +104,11 @@
     --chart-3: var(--petalo);
     --chart-4: var(--almendra);
     --chart-5: var(--bruma);
+    --serie-1: #2a78d6;
+    --serie-2: #eb6834;
+    --serie-3: #1baf7a;
+    --serie-4: #eda100;
+    --serie-5: #e87ba4;
     --radius: 0.75rem;
     --sidebar: var(--concha);
     --sidebar-foreground: #3a2e2b;
@@ -136,6 +147,11 @@
     --aviso-suave: #3a2a1c;
     --info: #a9cde0;
     --info-suave: #1e2a31;
+    --serie-1: #3987e5;
+    --serie-2: #d95926;
+    --serie-3: #199e70;
+    --serie-4: #c98500;
+    --serie-5: #d55181;
     --sidebar: #251f1d;
     --sidebar-foreground: #f8edeb;
     --sidebar-accent: #3d2e2b;

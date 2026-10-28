@@ -12,7 +12,8 @@ const CAMPOS_ORDEN = new Set([
   "precipitacion_mm",
   "importado_en",
 ])
-const MAX_TAMANO = 100
+/** La interfaz pagina como mucho de 250 en 250; la exportación pide páginas de 1000. */
+const MAX_TAMANO = 1000
 
 /** Lectura paginada de lo que está realmente persistido en Supabase. */
 export async function GET(request: NextRequest) {

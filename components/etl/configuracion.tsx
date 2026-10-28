@@ -4,21 +4,22 @@ import * as React from "react"
 import { CheckIcon, DownloadCloudIcon, PlusIcon, RotateCwIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { CIUDADES } from "@/lib/etl/ciudades"
 import { diasEntre, MAX_DIAS, validarExtraccion } from "@/lib/etl/extraccion"
 import { formatearDuracion, formatearNumero } from "@/lib/etl/formato"
 import { resumirPorCiudad } from "@/lib/etl/resumen"
+import { useConfiguracionGuardada } from "@/hooks/use-configuracion-guardada"
 import type { PipelineEtl } from "@/hooks/use-pipeline-etl"
 import { Campo, ListaMensajes } from "./campos"
 import { EstadoEtiqueta } from "./estado"
 import { MapaCiudades } from "./mapa"
+import { SelectorFechas } from "./selector-fechas"
 
 export function Configuracion({ etl }: { etl: PipelineEtl }) {
-  const [ciudades, setCiudades] = React.useState<string[]>(CIUDADES.map((c) => c.id))
-  const [inicio, setInicio] = React.useState("2026-09-01")
-  const [fin, setFin] = React.useState("2026-09-30")
+  const [{ ciudades, inicio, fin }, guardar] = useConfiguracionGuardada()
+  const setCiudades = (ids: string[]) => guardar({ ciudades: ids })
   const [intentado, setIntentado] = React.useState(false)
 
   const { errores, avisos } = validarExtraccion(ciudades, inicio, fin)
@@ -27,8 +28,10 @@ export function Configuracion({ etl }: { etl: PipelineEtl }) {
   const ocupado = ext?.estado === "en_curso" || etl.cargaEnCurso
 
   const alternar = (id: string, marcar: boolean) =>
-    setCiudades((prev) =>
-      marcar ? CIUDADES.filter((c) => prev.includes(c.id) || c.id === id).map((c) => c.id) : prev.filter((x) => x !== id)
+    setCiudades(
+      marcar
+        ? CIUDADES.filter((c) => ciudades.includes(c.id) || c.id === id).map((c) => c.id)
+        : ciudades.filter((x) => x !== id)
     )
 
   const enviar = (e: React.FormEvent) => {
@@ -124,28 +127,15 @@ export function Configuracion({ etl }: { etl: PipelineEtl }) {
             </div>
           </fieldset>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Campo etiqueta="Desde (UTC)" htmlFor="fecha-inicio">
-              <Input
-                id="fecha-inicio"
-                type="date"
-                value={inicio}
-                onChange={(e) => setInicio(e.target.value)}
-                disabled={ocupado}
-                aria-invalid={intentado && errores.length > 0}
-              />
-            </Campo>
-            <Campo etiqueta="Hasta (UTC, incluida)" htmlFor="fecha-fin">
-              <Input
-                id="fecha-fin"
-                type="date"
-                value={fin}
-                onChange={(e) => setFin(e.target.value)}
-                disabled={ocupado}
-                aria-invalid={intentado && errores.length > 0}
-              />
-            </Campo>
-          </div>
+          <Campo etiqueta="Periodo (UTC, ambos días incluidos)">
+            <SelectorFechas
+              inicio={inicio}
+              fin={fin}
+              alCambiar={(i, f) => guardar({ inicio: i, fin: f })}
+              deshabilitado={ocupado}
+              invalido={intentado && errores.length > 0}
+            />
+          </Campo>
 
           <div className="rounded-2xl bg-muted px-4 py-3" aria-live="polite">
             {dias > 0 ? (
@@ -177,10 +167,14 @@ export function Configuracion({ etl }: { etl: PipelineEtl }) {
 
         {ext && (
           <section aria-label="Progreso de la extracción" className="flex flex-col gap-2">
-            <p className="text-xs text-muted-foreground" aria-live="polite">
-              <strong className="text-foreground">{procesadas.length}</strong> procesadas ·{" "}
-              <strong className="text-foreground">{pendientes.length}</strong> pendientes · {ext.inicio} → {ext.fin}
-            </p>
+            <Progress value={estados.length ? (procesadas.length / estados.length) * 100 : 0}>
+              <ProgressLabel className="text-xs font-normal text-muted-foreground">
+                <strong className="text-foreground">{procesadas.length}</strong> procesadas ·{" "}
+                <strong className="text-foreground">{pendientes.length}</strong> pendientes · {ext.inicio} →{" "}
+                {ext.fin}
+              </ProgressLabel>
+              <ProgressValue className="text-xs" />
+            </Progress>
             <ul className="flex flex-col divide-y rounded-2xl border">
               {estados.map((e) => (
                 <li key={e.ciudad.id} className="flex flex-col gap-1 px-3 py-2 text-sm">
