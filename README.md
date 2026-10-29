@@ -152,13 +152,16 @@ lectura hay que pedirlo siempre.
 | `npm test` | 38 pruebas unitarias en 6 archivos: transformación de arrays paralelos, interpretación UTC, limpieza (null, vacíos, textos, rangos, fechas, duplicados, balance válidos + rechazados), filtros y orden antes de paginar, selección entre páginas, lotes y reintentos, validación del servidor, exportación CSV, resúmenes, perfil estadístico y consulta equivalente | 38 superadas |
 | `npm run test:integracion` | API real de Open-Meteo, validación del servidor (422 y 413) y, con Supabase configurado, carga, verificación, idempotencia y fallo parcial | 3 superadas; las 3 de Supabase se omiten si no hay credenciales |
 | `npm run typecheck`, `npm run lint`, `npm run build` | Tipos, estilo y compilación de producción | Sin errores |
+| Prueba manual en Vercel | Flujo completo en el despliegue: extracción, limpieza, selección, carga en Supabase y lectura en Destino | Correcta |
+| Revisión manual en móvil | Lectura y uso de la interfaz en pantalla pequeña | Correcta |
 
 ### Bloqueos y pendientes
 
 - **Sin autenticación.** Cualquiera que abra la aplicación puede usarla. Por eso, en producción la
   escritura queda desactivada salvo que `ETL_PERMITIR_ESCRITURA=true`; antes de activarla hay que
   proteger `/api/carga` (ver Seguridad).
-- **Pruebas de integración con Supabase.** Solo se ejecutan con credenciales reales en `.env.local`.
-  Sin ellas se omiten indicando el motivo.
+- **Pruebas de integración con Supabase.** Las automáticas solo se ejecutan con credenciales reales
+  en `.env.local` y sin ellas se omiten indicando el motivo. La carga real se ha comprobado a mano
+  en el despliegue de Vercel.
 - **Mapa en despliegues de vista previa.** La clave de MapTiler está limitada por origen, así que el
   mapa da 403 en las URLs de rama de Vercel si no se añaden a los orígenes permitidos.
