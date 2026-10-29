@@ -45,13 +45,12 @@
     --color-aviso-suave: var(--aviso-suave);
     --color-info: var(--info);
     --color-info-suave: var(--info-suave);
-    /* Paleta «Pastel Bliss» más un azul grisáceo para agua y lluvia. */
-    --color-rubor: var(--rubor);
-    --color-almendra: var(--almendra);
-    --color-concha: var(--concha);
-    --color-petalo: var(--petalo);
-    --color-melocoton: var(--melocoton);
-    --color-bruma: var(--bruma);
+    /* Paleta «Ocean Breeze». */
+    --color-pacifico: var(--pacifico);
+    --color-hielo: var(--hielo);
+    --color-porcelana: var(--porcelana);
+    --color-vainilla: var(--vainilla);
+    --color-mandarina: var(--mandarina);
     /* Series de las gráficas: una por ciudad, en orden fijo (validadas para daltonismo). */
     --color-serie-1: var(--serie-1);
     --color-serie-2: var(--serie-2);
@@ -68,96 +67,94 @@
 }
 
 :root {
-    --rubor: #ffb5a7;
-    --almendra: #fcd5ce;
-    --concha: #f8edeb;
-    --petalo: #f9dcc4;
-    --melocoton: #fec89a;
-    --bruma: #c9dde5;
+    --pacifico: #0fa3b1;
+    --hielo: #b5e2fa;
+    --porcelana: #f9f7f3;
+    --vainilla: #eddea4;
+    --mandarina: #f7a072;
 
-    --background: #fcf8f7;
-    --foreground: #3a2e2b;
+    --background: var(--porcelana);
+    --foreground: #1d3439;
     --card: #ffffff;
-    --card-foreground: #3a2e2b;
+    --card-foreground: #1d3439;
     --popover: #ffffff;
-    --popover-foreground: #3a2e2b;
-    --primary: var(--rubor);
-    --primary-foreground: #3a2e2b;
-    --secondary: var(--petalo);
-    --secondary-foreground: #3a2e2b;
-    --muted: var(--concha);
-    --muted-foreground: #76605b;
-    --accent: var(--almendra);
-    --accent-foreground: #3a2e2b;
+    --popover-foreground: #1d3439;
+    --primary: var(--pacifico);
+    --primary-foreground: #06262a;
+    --secondary: var(--vainilla);
+    --secondary-foreground: #1d3439;
+    --muted: #f0eee8;
+    --muted-foreground: #53696f;
+    --accent: #dcf1fc;
+    --accent-foreground: #1d3439;
     --destructive: #b8422e;
-    --border: #f0e0db;
-    --input: #e9d6d0;
-    --ring: #f09a88;
+    --border: #dfe7e8;
+    --input: #d3dfe1;
+    --ring: var(--pacifico);
     --exito: #36704f;
     --exito-suave: #e6f2ea;
     --aviso: #8a4e17;
-    --aviso-suave: #fff0e0;
-    --info: #2e5d72;
-    --info-suave: #e8f1f4;
-    --chart-1: var(--rubor);
-    --chart-2: var(--melocoton);
-    --chart-3: var(--petalo);
-    --chart-4: var(--almendra);
-    --chart-5: var(--bruma);
+    --aviso-suave: #fbf3d9;
+    --info: #0b6b75;
+    --info-suave: #e3f4f6;
+    --chart-1: var(--pacifico);
+    --chart-2: var(--mandarina);
+    --chart-3: var(--vainilla);
+    --chart-4: var(--hielo);
+    --chart-5: #0b6b75;
     --serie-1: #2a78d6;
     --serie-2: #eb6834;
     --serie-3: #1baf7a;
     --serie-4: #eda100;
     --serie-5: #e87ba4;
     --radius: 0.75rem;
-    --sidebar: var(--concha);
-    --sidebar-foreground: #3a2e2b;
-    --sidebar-primary: var(--rubor);
-    --sidebar-primary-foreground: #3a2e2b;
-    --sidebar-accent: var(--almendra);
-    --sidebar-accent-foreground: #3a2e2b;
-    --sidebar-border: #f0e0db;
-    --sidebar-ring: #f09a88;
+    --sidebar: var(--porcelana);
+    --sidebar-foreground: #1d3439;
+    --sidebar-primary: var(--pacifico);
+    --sidebar-primary-foreground: #06262a;
+    --sidebar-accent: #dcf1fc;
+    --sidebar-accent-foreground: #1d3439;
+    --sidebar-border: #dfe7e8;
+    --sidebar-ring: var(--pacifico);
 }
 
 .dark {
-    --bruma: #3f5560;
-
-    --background: #1c1716;
-    --foreground: #f8edeb;
-    --card: #251f1d;
-    --card-foreground: #f8edeb;
-    --popover: #2a2321;
-    --popover-foreground: #f8edeb;
-    --primary: var(--rubor);
-    --primary-foreground: #2a1f1c;
-    --secondary: #3a2d27;
-    --secondary-foreground: var(--petalo);
-    --muted: #2e2624;
-    --muted-foreground: #b9a6a1;
-    --accent: #3d2e2b;
-    --accent-foreground: var(--almendra);
+    --background: #0f1e22;
+    --foreground: var(--porcelana);
+    --card: #152a2f;
+    --card-foreground: var(--porcelana);
+    --popover: #1a3237;
+    --popover-foreground: var(--porcelana);
+    --primary: var(--pacifico);
+    --primary-foreground: #06262a;
+    --secondary: #2c3326;
+    --secondary-foreground: var(--vainilla);
+    --muted: #183034;
+    --muted-foreground: #9fb8bd;
+    --accent: #1d3b41;
+    --accent-foreground: var(--hielo);
     --destructive: #f28b78;
-    --border: rgb(255 220 210 / 10%);
-    --input: rgb(255 220 210 / 16%);
-    --ring: #e39383;
+    --border: rgb(181 226 250 / 12%);
+    --input: rgb(181 226 250 / 18%);
+    --ring: #3fc0cc;
     --exito: #9fd3b4;
     --exito-suave: #1f2e26;
-    --aviso: var(--melocoton);
-    --aviso-suave: #3a2a1c;
-    --info: #a9cde0;
-    --info-suave: #1e2a31;
+    --aviso: var(--mandarina);
+    --aviso-suave: #33291c;
+    --info: var(--hielo);
+    --info-suave: #16303a;
+    --chart-5: #5fc6d0;
     --serie-1: #3987e5;
     --serie-2: #d95926;
     --serie-3: #199e70;
     --serie-4: #c98500;
     --serie-5: #d55181;
-    --sidebar: #251f1d;
-    --sidebar-foreground: #f8edeb;
-    --sidebar-accent: #3d2e2b;
-    --sidebar-accent-foreground: var(--almendra);
-    --sidebar-border: rgb(255 220 210 / 10%);
-    --sidebar-ring: #e39383;
+    --sidebar: #152a2f;
+    --sidebar-foreground: var(--porcelana);
+    --sidebar-accent: #1d3b41;
+    --sidebar-accent-foreground: var(--hielo);
+    --sidebar-border: rgb(181 226 250 / 12%);
+    --sidebar-ring: #3fc0cc;
 }
 
 @layer base {
@@ -166,10 +163,10 @@
     }
   body {
     @apply min-h-dvh bg-background text-foreground;
-    /* Brillo pastel muy tenue en las esquinas: da calidez sin teñir el contenido. */
+    /* Brillo muy tenue en las esquinas (mar y arena): da ambiente sin teñir el contenido. */
     background-image:
-      radial-gradient(60rem 30rem at 0% -10%, color-mix(in oklch, var(--rubor) 18%, transparent), transparent 70%),
-      radial-gradient(50rem 28rem at 100% 0%, color-mix(in oklch, var(--melocoton) 14%, transparent), transparent 70%);
+      radial-gradient(60rem 30rem at 0% -10%, color-mix(in oklch, var(--hielo) 30%, transparent), transparent 70%),
+      radial-gradient(50rem 28rem at 100% 0%, color-mix(in oklch, var(--vainilla) 22%, transparent), transparent 70%);
     background-repeat: no-repeat;
     }
   html {
@@ -184,7 +181,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 0.625rem 0.75rem;
-    box-shadow: 0 8px 24px rgb(58 46 43 / 0.12);
+    box-shadow: 0 8px 24px rgb(29 52 57 / 0.12);
 }
 .mapa-popup .maplibregl-popup-tip {
     display: none;
@@ -194,7 +191,7 @@
 .maplibregl-ctrl-group {
     border-radius: var(--radius-md) !important;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgb(58 46 43 / 0.1) !important;
+    box-shadow: 0 2px 8px rgb(29 52 57 / 0.1) !important;
 }
 .dark .maplibregl-ctrl-group {
     background: var(--card);

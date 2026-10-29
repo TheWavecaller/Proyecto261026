@@ -205,9 +205,9 @@ export function PasosPipeline({ fases }: { fases: Fase[] }) {
             value={f.pestana}
             className={cn(
               "group/paso h-auto flex-col items-stretch justify-start gap-3 rounded-2xl border bg-card p-3 text-left whitespace-normal text-foreground shadow-xs transition",
-              "hover:-translate-y-0.5 hover:border-rubor/70 hover:text-foreground",
-              "data-active:border-rubor data-active:bg-accent/70 data-active:shadow-sm",
-              "dark:text-foreground dark:data-active:border-rubor dark:data-active:bg-accent"
+              "hover:-translate-y-0.5 hover:border-pacifico/70 hover:text-foreground",
+              "data-active:border-pacifico data-active:bg-accent/70 data-active:shadow-sm",
+              "dark:text-foreground dark:data-active:border-pacifico dark:data-active:bg-accent"
             )}
           >
             <span className="flex items-center justify-between gap-2">

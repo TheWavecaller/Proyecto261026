@@ -18,27 +18,27 @@ const CLAVE_MAPTILER = process.env.NEXT_PUBLIC_MAPTILER_KEY
 const urlEstilo = (oscuro: boolean) =>
   `https://api.maptiler.com/maps/${oscuro ? "dataviz-dark" : "dataviz"}/style.json?key=${CLAVE_MAPTILER}`
 
-/** Colores del mapa base a juego con la paleta pastel; el agua conserva un azul grisáceo para leerse como agua. */
+/** Colores del mapa base a juego con la paleta «Ocean Breeze»: tierra en porcelana y agua en azul hielo. */
 const PALETA_MAPA = {
   claro: {
-    fondo: "#fbf5f3",
-    residencial: "#f6e8e4",
-    vegetacion: "#f1efe3",
-    agua: "#d5e5eb",
-    aguaSombra: "#c4d9e1",
-    frontera: "#e3a294",
-    fronteraSuave: "#f2cbc1",
-    texto: "#8a7470",
+    fondo: "#f9f7f3",
+    residencial: "#f1eee7",
+    vegetacion: "#eef0e2",
+    agua: "#b5e2fa",
+    aguaSombra: "#9fd3ee",
+    frontera: "#0fa3b1",
+    fronteraSuave: "#a9dbe0",
+    texto: "#5d747a",
   },
   oscuro: {
-    fondo: "#1f1a19",
-    residencial: "#2a2321",
-    vegetacion: "#25231f",
-    agua: "#1c272c",
-    aguaSombra: "#172126",
-    frontera: "#8f6157",
-    fronteraSuave: "#4f3d39",
-    texto: "#b9a6a1",
+    fondo: "#0f1e22",
+    residencial: "#15282c",
+    vegetacion: "#16261f",
+    agua: "#14394a",
+    aguaSombra: "#10303e",
+    frontera: "#2b8f99",
+    fronteraSuave: "#24474d",
+    texto: "#9fb8bd",
   },
 }
 
@@ -73,14 +73,14 @@ const METRICAS: Record<
     texto: "Temperatura",
     unidad: "°C",
     valor: (m) => m.temperaturaMedia,
-    // frío (bruma) → templado (melocotón) → cálido (coral)
-    colores: ["#a9c7d4", "#fec89a", "#f08a75"],
+    // frío (hielo) → templado (vainilla) → cálido (mandarina)
+    colores: ["#b5e2fa", "#eddea4", "#f7a072"],
   },
   precipitacion: {
     texto: "Lluvia",
     unidad: "mm",
     valor: (m) => m.precipitacionTotal,
-    colores: ["#f8edeb", "#a9c7d4", "#5f8ea3"],
+    colores: ["#f9f7f3", "#b5e2fa", "#0fa3b1"],
   },
 }
 
@@ -278,20 +278,20 @@ function Mapa({ seleccionadas, alAlternar, deshabilitado, resumen, estados, clas
               <span
                 className={cn(
                   "flex items-center gap-1.5 rounded-full border-2 bg-card py-1 pr-3 pl-1 text-xs font-semibold whitespace-nowrap text-card-foreground shadow-md transition group-hover:-translate-y-0.5 group-focus-visible:ring-3 group-focus-visible:ring-ring/50",
-                  seleccionada ? "border-rubor" : "border-dashed border-border opacity-75"
+                  seleccionada ? "border-pacifico" : "border-dashed border-border opacity-75"
                 )}
               >
                 <span
                   className={cn(
                     "flex size-5 items-center justify-center rounded-full text-foreground",
-                    seleccionada ? "bg-almendra" : "bg-muted"
+                    seleccionada ? "bg-hielo" : "bg-muted"
                   )}
                   style={valor !== undefined ? { background: colorDe(valor) } : undefined}
                 >
                   {estados?.[c.id] === "en_curso" ? (
                     <LoaderCircleIcon className="size-3 animate-spin" />
                   ) : (
-                    seleccionada && <CheckIcon className="size-3 text-[#3a2e2b]" strokeWidth={3} />
+                    seleccionada && <CheckIcon className="size-3 text-[#1d3439]" strokeWidth={3} />
                   )}
                 </span>
                 {c.nombre}
@@ -301,11 +301,11 @@ function Mapa({ seleccionadas, alAlternar, deshabilitado, resumen, estados, clas
                   </span>
                 )}
               </span>
-              <span className={cn("h-2.5 w-0.5", seleccionada ? "bg-rubor" : "bg-border")} />
+              <span className={cn("h-2.5 w-0.5", seleccionada ? "bg-pacifico" : "bg-border")} />
               <span
                 className={cn(
                   "size-2.5 rounded-full border-2 border-card shadow",
-                  seleccionada ? "bg-[#f08a75]" : "bg-muted-foreground/50"
+                  seleccionada ? "bg-mandarina" : "bg-muted-foreground/50"
                 )}
               />
             </button>,

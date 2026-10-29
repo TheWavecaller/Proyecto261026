@@ -10,7 +10,7 @@ export default function Page() {
       <header className="flex items-start gap-4">
         <span
           aria-hidden
-          className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-rubor to-melocoton text-foreground shadow-sm dark:text-primary-foreground"
+          className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-hielo to-pacifico text-foreground shadow-sm dark:text-primary-foreground"
         >
           <CloudSunIcon className="size-6" />
         </span>

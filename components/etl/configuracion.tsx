@@ -115,8 +115,8 @@ export function Configuracion({ etl }: { etl: PipelineEtl }) {
                     className={cn(
                       "inline-flex h-8 items-center gap-1.5 rounded-full border pr-3 pl-2 text-sm font-medium transition outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50",
                       marcada
-                        ? "border-rubor bg-accent text-accent-foreground"
-                        : "border-dashed text-muted-foreground hover:border-rubor hover:text-foreground"
+                        ? "border-pacifico bg-accent text-accent-foreground"
+                        : "border-dashed text-muted-foreground hover:border-pacifico hover:text-foreground"
                     )}
                   >
                     {marcada ? <CheckIcon className="size-3.5" /> : <PlusIcon className="size-3.5" />}
