@@ -1,10 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { EyeIcon, LoaderCircleIcon, UploadCloudIcon } from "lucide-react"
+import { EyeIcon, UploadCloudIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { Kbd } from "@/components/ui/kbd"
+import { Spinner } from "@/components/ui/spinner"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { formatearNumero } from "@/lib/etl/formato"
 import { usePipelineEtl } from "@/hooks/use-pipeline-etl"
@@ -105,7 +107,7 @@ function BarraCarga({
         <div className="flex min-w-0 flex-1 items-center gap-3" role="status">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
             {etl.cargaEnCurso ? (
-              <LoaderCircleIcon className="size-4 animate-spin" />
+              <Spinner aria-label="Subiendo" />
             ) : (
               <UploadCloudIcon className="size-4" />
             )}
@@ -172,6 +174,10 @@ export function BancoTrabajo() {
           </h2>
           <p className="text-sm text-muted-foreground">
             Cada paso muestra su resultado. Púlsalo para ver sus datos y lo que ha hecho con ellos.
+            <span className="hidden sm:inline">
+              {" "}
+              Con el teclado, usa <Kbd>←</Kbd> <Kbd>→</Kbd> para moverte entre pasos.
+            </span>
           </p>
         </div>
 

@@ -1,10 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { DownloadIcon } from "lucide-react"
+import { DownloadCloudIcon, DownloadIcon, ShuffleIcon, SparklesIcon, type LucideIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
+import { Spinner } from "@/components/ui/spinner"
 import { formatearCrudo, formatearFechaUtc, formatearNumero } from "@/lib/etl/formato"
 import type { FilaTransformada, Medicion, Rechazo } from "@/lib/etl/tipos"
 import type { EstadoCiudad, PipelineEtl } from "@/hooks/use-pipeline-etl"
@@ -24,8 +26,28 @@ function descargar(nombre: string, datos: unknown) {
   URL.revokeObjectURL(url)
 }
 
-export function SinDatos({ children }: { children: React.ReactNode }) {
-  return <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">{children}</p>
+/** Estado vacío de un paso: qué falta y qué hacer para que aparezcan datos. */
+export function SinDatos({
+  icono: Icono,
+  titulo,
+  cargando = false,
+  children,
+}: {
+  icono: LucideIcon
+  titulo: string
+  /** Muestra un indicador de carga en lugar del icono. */
+  cargando?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <Empty className="rounded-2xl border border-dashed py-10">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">{cargando ? <Spinner /> : <Icono />}</EmptyMedia>
+        <EmptyTitle>{titulo}</EmptyTitle>
+        <EmptyDescription>{children}</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  )
 }
 
 /** Valor crudo resaltando null, ausentes y textos para que no pasen desapercibidos. */
@@ -70,7 +92,12 @@ const numeroCrudo = (v: unknown) => (typeof v === "number" && Number.isFinite(v)
 export function PestanaJson({ etl }: { etl: PipelineEtl }) {
   const ext = etl.extraccion
   const [elegida, setElegida] = React.useState<string | null>(null)
-  if (!ext) return <SinDatos>Todavía no hay respuestas. Lanza una extracción.</SinDatos>
+  if (!ext)
+    return (
+      <SinDatos icono={DownloadCloudIcon} titulo="Todavía no hay extracción">
+        Elige ciudades y periodo en el paso 1 y pulsa «Extraer datos».
+      </SinDatos>
+    )
 
   const estados = ext.ciudades.map((c) => ext.porCiudad[c.id])
   const actual: EstadoCiudad = ext.porCiudad[elegida ?? ""] ?? estados[0]
@@ -162,7 +189,11 @@ export function PestanaJson({ etl }: { etl: PipelineEtl }) {
           </pre>
         </>
       ) : (
-        !actual.error && <SinDatos>Respuesta aún no recibida.</SinDatos>
+        !actual.error && (
+          <SinDatos icono={DownloadCloudIcon} titulo="Esperando respuesta" cargando={actual.estado === "en_curso"}>
+            Open-Meteo todavía no ha respondido para {actual.ciudad.nombre}.
+          </SinDatos>
+        )
       )}
     </div>
   )
@@ -208,7 +239,12 @@ const COLUMNAS_TRANSFORMADAS: Columna<FilaTransformada>[] = [
 
 export function PestanaTransformados({ etl }: { etl: PipelineEtl }) {
   const p = etl.procesado
-  if (!p) return <SinDatos>La transformación se ejecuta al terminar la extracción.</SinDatos>
+  if (!p)
+    return (
+      <SinDatos icono={ShuffleIcon} titulo="Esperando a la extracción" cargando={etl.extraccion?.estado === "en_curso"}>
+        La transformación se ejecuta al terminar la extracción.
+      </SinDatos>
+    )
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-muted-foreground">
@@ -295,7 +331,12 @@ const COLUMNAS_RECHAZADOS: Columna<Rechazo>[] = [
 
 export function PestanaRechazados({ etl }: { etl: PipelineEtl }) {
   const p = etl.procesado
-  if (!p) return <SinDatos>La limpieza se ejecuta al terminar la extracción.</SinDatos>
+  if (!p)
+    return (
+      <SinDatos icono={SparklesIcon} titulo="Esperando a la extracción" cargando={etl.extraccion?.estado === "en_curso"}>
+        La limpieza se ejecuta al terminar la extracción.
+      </SinDatos>
+    )
   const calidad = p.rechazados.filter((r) => r.tipo === "calidad").length
   return (
     <div className="flex flex-col gap-3">

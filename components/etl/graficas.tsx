@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { ChartLineIcon } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, LabelList, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import {
@@ -11,6 +12,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { cn } from "@/lib/utils"
 import { CIUDADES } from "@/lib/etl/ciudades"
 import { formatearNumero } from "@/lib/etl/formato"
@@ -97,7 +99,15 @@ export function GraficaMediciones({ filas, className }: { filas: readonly Medici
       </div>
 
       {puntos.length === 0 ? (
-        <p className="py-10 text-center text-sm text-muted-foreground">No hay registros que dibujar.</p>
+        <Empty className="h-64 sm:h-72">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <ChartLineIcon />
+            </EmptyMedia>
+            <EmptyTitle>No hay registros que dibujar</EmptyTitle>
+            <EmptyDescription>Ningún registro cumple los filtros actuales. Amplíalos para ver la gráfica.</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : (
         <ChartContainer config={CONFIG_CIUDADES} className="aspect-auto h-64 w-full sm:h-72">
           <LineChart data={puntos} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>

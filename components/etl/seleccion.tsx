@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { CheckSquareIcon, FilterXIcon, SquareIcon, XIcon } from "lucide-react"
+import { CheckSquareIcon, FilterXIcon, ListFilterIcon, SquareIcon, XIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -126,7 +126,12 @@ export function PestanaValidos({ etl }: { etl: PipelineEtl }) {
     [etl.seleccion, etl.alternarSeleccion]
   )
 
-  if (!p) return <SinDatos>Los registros válidos aparecerán tras la limpieza.</SinDatos>
+  if (!p)
+    return (
+      <SinDatos icono={ListFilterIcon} titulo="Esperando a la extracción" cargando={etl.extraccion?.estado === "en_curso"}>
+        Los registros válidos aparecerán tras la limpieza.
+      </SinDatos>
+    )
 
   return (
     <div className="flex flex-col gap-4">

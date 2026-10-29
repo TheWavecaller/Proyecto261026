@@ -195,6 +195,7 @@ export function PasosPipeline({ fases }: { fases: Fase[] }) {
   return (
     <TabsList
       aria-label="Fases del pipeline"
+      activateOnFocus
       className="grid h-auto w-full grid-cols-2 items-stretch gap-2 bg-transparent p-0 group-data-horizontal/tabs:h-auto sm:grid-cols-3 lg:grid-cols-6"
     >
       {fases.map((f) => {

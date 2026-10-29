@@ -58,7 +58,12 @@ export function PestanaCarga({
   alComprobar: () => void
 }) {
   const { carga, paraSubir } = etl
-  if (!etl.procesado) return <SinDatos>Extrae y selecciona registros para preparar la carga.</SinDatos>
+  if (!etl.procesado)
+    return (
+      <SinDatos icono={UploadCloudIcon} titulo="Nada que cargar todavía">
+        Extrae y selecciona registros para preparar la carga.
+      </SinDatos>
+    )
 
   const ok = carga?.lotes.filter((l) => l.estado === "completado") ?? []
   const fallidos = carga?.lotes.filter((l) => l.estado === "error") ?? []

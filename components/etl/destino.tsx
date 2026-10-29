@@ -1,10 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { DatabaseIcon, RefreshCwIcon } from "lucide-react"
+import { DatabaseIcon, DatabaseZapIcon, RefreshCwIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -180,11 +182,34 @@ export function PestanaDestino({ version, pendientes }: { version: number; pendi
               ))}
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {!resultado || resultado.filas.length === 0 ? (
+          <TableBody aria-busy={cargando}>
+            {cargando && !resultado ? (
+              Array.from({ length: 6 }, (_, i) => (
+                <TableRow key={i}>
+                  {Array.from({ length: 7 }, (_, j) => (
+                    <TableCell key={j}>
+                      {/* id y las tres medidas van alineadas a la derecha, como sus datos. */}
+                      <Skeleton className={j === 0 || (j >= 3 && j <= 5) ? "ml-auto h-4 w-12" : "h-4 w-28"} />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : !resultado || resultado.filas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-20 text-center text-muted-foreground">
-                  {cargando ? "Leyendo Supabase…" : error ? "No se pudo leer la tabla." : "No hay filas almacenadas con estos filtros."}
+                <TableCell colSpan={7} className="whitespace-normal">
+                  <Empty className="py-8">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        {error ? <DatabaseZapIcon /> : <DatabaseIcon />}
+                      </EmptyMedia>
+                      <EmptyTitle>{error ? "No se pudo leer la tabla" : "No hay filas con estos filtros"}</EmptyTitle>
+                      <EmptyDescription>
+                        {error
+                          ? "Comprueba la conexión con Supabase y pulsa «Actualizar»."
+                          : "Cambia los filtros o sube registros en el paso 5 · Carga."}
+                      </EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
                 </TableCell>
               </TableRow>
             ) : (

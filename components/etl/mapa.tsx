@@ -3,10 +3,11 @@
 import * as React from "react"
 import { createPortal } from "react-dom"
 import { useTheme } from "next-themes"
-import { CheckIcon, LoaderCircleIcon, MousePointerClickIcon } from "lucide-react"
+import { CheckIcon, MousePointerClickIcon } from "lucide-react"
 import type { Map as MapaMapLibre, Popup } from "maplibre-gl"
 import "maplibre-gl/dist/maplibre-gl.css"
 
+import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { CIUDADES, type Ciudad } from "@/lib/etl/ciudades"
 import { formatearDecimal, formatearNumero } from "@/lib/etl/formato"
@@ -289,7 +290,7 @@ function Mapa({ seleccionadas, alAlternar, deshabilitado, resumen, estados, clas
                   style={valor !== undefined ? { background: colorDe(valor) } : undefined}
                 >
                   {estados?.[c.id] === "en_curso" ? (
-                    <LoaderCircleIcon className="size-3 animate-spin" />
+                    <Spinner className="size-3" aria-label={`Extrayendo ${c.nombre}`} />
                   ) : (
                     seleccionada && <CheckIcon className="size-3 text-[#1d3439]" strokeWidth={3} />
                   )}
