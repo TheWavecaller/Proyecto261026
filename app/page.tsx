@@ -15,9 +15,6 @@ export default function Page() {
           <CloudSunIcon className="size-6" />
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            Big Data · Práctica 1
-          </p>
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
             Clima de Open-Meteo a Supabase
           </h1>

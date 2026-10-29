@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { contarMotivos, resumirPorCiudad, serieTemporal } from "@/lib/etl/resumen"
+import { contarMotivos, perfilMedidas, resumirPorCiudad, serieTemporal } from "@/lib/etl/resumen"
 import type { Medicion, Rechazo } from "@/lib/etl/tipos"
 
 const medicion = (ciudad: string, temperatura_c: number, precipitacion_mm = 0): Medicion => ({
@@ -101,5 +101,21 @@ describe("recuento de motivos de rechazo", () => {
       { motivo: "Duplicado (ciudad, fecha_hora)", total: 1 },
       { motivo: "Temperatura: valor nulo", total: 1 },
     ])
+  })
+})
+
+describe("perfil estadístico (describe)", () => {
+  it("coincide con pandas: desviación muestral y percentiles con interpolación lineal", () => {
+    const [t] = perfilMedidas([4, 1, 3, 2].map((v) => medicion("Madrid", v)))!
+    expect(t.medida).toBe("temperatura_c")
+    expect(t.n).toBe(4)
+    expect(t.media).toBe(2.5)
+    expect(t.desviacion).toBeCloseTo(1.290994, 6)
+    expect([t.min, t.p25, t.p50, t.p75, t.max]).toEqual([1, 1.75, 2.5, 3.25, 4])
+  })
+
+  it("con un solo valor la desviación es 0 y sin filas no inventa nada", () => {
+    expect(perfilMedidas([medicion("Madrid", 7)])![0]).toMatchObject({ desviacion: 0, p25: 7, p75: 7 })
+    expect(perfilMedidas([])).toBeNull()
   })
 })

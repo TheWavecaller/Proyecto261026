@@ -6,8 +6,6 @@ import { Bar, BarChart, CartesianGrid, LabelList, Line, LineChart, XAxis, YAxis 
 
 import {
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
@@ -30,6 +28,35 @@ const MEDIDAS: Record<MedidaGrafica, { texto: string; unidad: string; decimales:
 const CONFIG_CIUDADES: ChartConfig = Object.fromEntries(
   CIUDADES.map((c, i) => [c.nombre, { label: c.nombre, color: `var(--serie-${(i % 5) + 1})` }])
 )
+
+// Además del color, cada ciudad tiene su trazo: las líneas se distinguen sin depender del color.
+const TRAZOS = ["", "8 4", "2 3", "12 4 2 4", "4 4"]
+const trazoDe = (nombre: string) => TRAZOS[Math.max(0, CIUDADES.findIndex((c) => c.nombre === nombre)) % TRAZOS.length]
+
+/** Leyenda con una muestra del trazo de cada ciudad, no solo su color. */
+function LeyendaTrazos({ ciudades }: { ciudades: readonly { id: string; nombre: string }[] }) {
+  return (
+    <ul className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs" aria-label="Leyenda">
+      {ciudades.map((c) => (
+        <li key={c.id} className="flex items-center gap-1.5">
+          <svg aria-hidden width="28" height="8" className="shrink-0">
+            <line
+              x1="1"
+              y1="4"
+              x2="27"
+              y2="4"
+              stroke={CONFIG_CIUDADES[c.nombre]?.color}
+              strokeWidth="2.5"
+              strokeDasharray={trazoDe(c.nombre) || undefined}
+              strokeLinecap="round"
+            />
+          </svg>
+          {c.nombre}
+        </li>
+      ))}
+    </ul>
+  )
+}
 
 const fechaDia = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", timeZone: "UTC" })
 const fechaLarga = new Intl.DateTimeFormat("es-ES", {
@@ -141,13 +168,13 @@ export function GraficaMediciones({ filas, className }: { filas: readonly Medici
                 />
               }
             />
-            {ciudades.length > 1 && <ChartLegend content={<ChartLegendContent />} />}
             {ciudades.map((c) => (
               <Line
                 key={c.id}
                 dataKey={c.nombre}
                 type="monotone"
                 stroke={`var(--color-${c.nombre})`}
+                strokeDasharray={trazoDe(c.nombre) || undefined}
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4 }}
@@ -157,6 +184,7 @@ export function GraficaMediciones({ filas, className }: { filas: readonly Medici
           </LineChart>
         </ChartContainer>
       )}
+      {puntos.length > 0 && ciudades.length > 1 && <LeyendaTrazos ciudades={ciudades} />}
     </figure>
   )
 }

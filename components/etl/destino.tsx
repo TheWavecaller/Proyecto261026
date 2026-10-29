@@ -11,13 +11,13 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
 import { CIUDADES } from "@/lib/etl/ciudades"
 import { formatearFechaUtc, formatearNumero } from "@/lib/etl/formato"
 import { Campo, ListaMensajes, Selector } from "./campos"
+import { ConsultaEquivalente } from "./consulta"
 import { BotonExportar } from "./exportar"
 import { CabeceraOrdenable, Paginacion, siguienteOrden, type Direccion } from "./tabla-paginada"
 
@@ -31,14 +31,21 @@ interface FilaDestino extends Record<string, unknown> {
   importado_en: string
 }
 
+/** Tipos tal como los define la migración. */
 const COLUMNAS_DESTINO = [
-  { campo: "ciudad", titulo: "Ciudad" },
-  { campo: "fecha_hora", titulo: "Fecha y hora (UTC)" },
-  { campo: "temperatura_c", titulo: "Temperatura (°C)", numerica: true },
-  { campo: "humedad_pct", titulo: "Humedad (%)", numerica: true },
-  { campo: "precipitacion_mm", titulo: "Precipitación (mm)", numerica: true },
-  { campo: "importado_en", titulo: "Importado en (UTC)" },
+  { campo: "ciudad", titulo: "Ciudad", tipo: "text" },
+  { campo: "fecha_hora", titulo: "Fecha y hora (UTC)", tipo: "timestamptz" },
+  { campo: "temperatura_c", titulo: "Temperatura (°C)", tipo: "float8", numerica: true },
+  { campo: "humedad_pct", titulo: "Humedad (%)", tipo: "float8", numerica: true },
+  { campo: "precipitacion_mm", titulo: "Precipitación (mm)", tipo: "float8", numerica: true },
+  { campo: "importado_en", titulo: "Importado en (UTC)", tipo: "timestamptz" },
 ]
+
+/** Valor de un datetime-local interpretado como UTC, en ISO; vacío si no hay fecha válida. */
+function isoUtc(local: string): string {
+  const ms = Date.parse(`${local}:00Z`)
+  return local && !Number.isNaN(ms) ? new Date(ms).toISOString() : ""
+}
 
 /** Lee todas las páginas de la consulta (mismos filtros y orden), de 1000 en 1000 y en serie. */
 async function leerTodo(params: URLSearchParams): Promise<FilaDestino[]> {
@@ -153,6 +160,18 @@ export function PestanaDestino({ version, pendientes }: { version: number; pendi
         </code>
       </p>
 
+      <ConsultaEquivalente
+        parametros={{
+          ciudad,
+          desde: isoUtc(desde),
+          hasta: isoUtc(hasta),
+          orden,
+          dir,
+          pagina,
+          tamano,
+        }}
+      />
+
       {error && <ListaMensajes tono="error" mensajes={[error]} />}
       {resultado && (
         <p className="text-xs text-muted-foreground" aria-live="polite">
@@ -165,11 +184,12 @@ export function PestanaDestino({ version, pendientes }: { version: number; pendi
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead className="text-right">id</TableHead>
+              <CabeceraOrdenable titulo="id" tipo="int8" numerica direccion={null} />
               {COLUMNAS_DESTINO.map((c) => (
                 <CabeceraOrdenable
                   key={c.campo}
                   titulo={c.titulo}
+                  tipo={c.tipo}
                   numerica={c.numerica}
                   direccion={orden === c.campo ? dir : null}
                   alPulsar={() => {

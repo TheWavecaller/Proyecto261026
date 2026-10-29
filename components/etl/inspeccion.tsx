@@ -10,6 +10,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { formatearCrudo, formatearFechaUtc, formatearNumero } from "@/lib/etl/formato"
 import type { FilaTransformada, Medicion, Rechazo } from "@/lib/etl/tipos"
 import type { EstadoCiudad, PipelineEtl } from "@/hooks/use-pipeline-etl"
+import { CalidadPorCiudad } from "./analisis"
 import { ListaMensajes } from "./campos"
 import { EstadoEtiqueta } from "./estado"
 import { BotonExportar } from "./exportar"
@@ -60,26 +61,39 @@ function Crudo({ valor }: { valor: unknown }) {
   )
 }
 
-/** Los id coinciden con los campos de ordenación (CampoOrden) para poder ordenar por cabecera. */
+/**
+ * Los id coinciden con los campos de ordenación (CampoOrden) para poder ordenar por cabecera.
+ * El tipo es el de la columna en Supabase (ver la migración).
+ */
 export const COLUMNAS_MEDICION: Columna<Medicion>[] = [
-  { id: "ciudad", titulo: "Ciudad", celda: (m) => m.ciudad, valor: (m) => m.ciudad },
+  { id: "ciudad", titulo: "Ciudad", tipo: "text", celda: (m) => m.ciudad, valor: (m) => m.ciudad },
   {
     id: "fecha_hora",
     titulo: "Fecha y hora (UTC)",
+    tipo: "timestamptz",
     celda: (m) => formatearFechaUtc(m.fecha_hora),
     valor: (m) => formatearFechaUtc(m.fecha_hora),
   },
   {
     id: "temperatura_c",
     titulo: "Temperatura (°C)",
+    tipo: "float8",
     numerica: true,
     celda: (m) => m.temperatura_c.toFixed(1),
     valor: (m) => m.temperatura_c,
   },
-  { id: "humedad_pct", titulo: "Humedad (%)", numerica: true, celda: (m) => m.humedad_pct, valor: (m) => m.humedad_pct },
+  {
+    id: "humedad_pct",
+    titulo: "Humedad (%)",
+    tipo: "float8",
+    numerica: true,
+    celda: (m) => m.humedad_pct,
+    valor: (m) => m.humedad_pct,
+  },
   {
     id: "precipitacion_mm",
     titulo: "Precipitación (mm)",
+    tipo: "float8",
     numerica: true,
     celda: (m) => m.precipitacion_mm.toFixed(2),
     valor: (m) => m.precipitacion_mm,
@@ -346,7 +360,10 @@ export function PestanaRechazados({ etl }: { etl: PipelineEtl }) {
         de ciudad y fecha_hora se conserva la primera aparición. Los registros que solo quedan fuera
         por los filtros <em>no</em> aparecen aquí: siguen siendo válidos.
       </p>
-      <GraficaRechazos rechazados={p.rechazados} />
+      <div className="grid gap-3 lg:grid-cols-2">
+        <CalidadPorCiudad validos={p.validos} rechazados={p.rechazados} />
+        <GraficaRechazos rechazados={p.rechazados} />
+      </div>
       <TablaPaginada
         filas={p.rechazados}
         columnas={COLUMNAS_RECHAZADOS}

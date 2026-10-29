@@ -68,6 +68,53 @@ export function contarMotivos(rechazados: readonly Rechazo[]): { motivo: string;
     .sort((a, b) => b.total - a.total || a.motivo.localeCompare(b.motivo, "es"))
 }
 
+export interface PerfilMedida {
+  medida: MedidaGrafica
+  n: number
+  media: number
+  /** Desviación típica muestral (n − 1), como pandas; 0 con un solo valor. */
+  desviacion: number
+  min: number
+  p25: number
+  p50: number
+  p75: number
+  max: number
+}
+
+/** Percentil con interpolación lineal entre posiciones (el método por defecto de pandas). */
+function percentil(ordenados: readonly number[], q: number): number {
+  const pos = (ordenados.length - 1) * q
+  const i = Math.floor(pos)
+  const resto = pos - i
+  return i + 1 < ordenados.length ? ordenados[i] + resto * (ordenados[i + 1] - ordenados[i]) : ordenados[i]
+}
+
+/**
+ * Estadística descriptiva de cada medida, equivalente a `df.describe()`. Devuelve null si no
+ * hay filas: no se inventan valores.
+ */
+export function perfilMedidas(filas: readonly Medicion[]): PerfilMedida[] | null {
+  if (filas.length === 0) return null
+  const medidas: MedidaGrafica[] = ["temperatura_c", "humedad_pct", "precipitacion_mm"]
+  return medidas.map((medida) => {
+    const valores = filas.map((m) => m[medida]).sort((a, b) => a - b)
+    const n = valores.length
+    const media = valores.reduce((t, v) => t + v, 0) / n
+    const varianza = n > 1 ? valores.reduce((t, v) => t + (v - media) ** 2, 0) / (n - 1) : 0
+    return {
+      medida,
+      n,
+      media,
+      desviacion: Math.sqrt(varianza),
+      min: valores[0],
+      p25: percentil(valores, 0.25),
+      p50: percentil(valores, 0.5),
+      p75: percentil(valores, 0.75),
+      max: valores[n - 1],
+    }
+  })
+}
+
 export interface MedidasCiudad {
   temperaturaMedia: number
   temperaturaMin: number

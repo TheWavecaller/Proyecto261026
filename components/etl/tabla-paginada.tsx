@@ -46,6 +46,8 @@ export interface Columna<T> {
   /** Valor para ordenar y buscar. Sin él, la columna no se puede ordenar. */
   valor?: (fila: T) => string | number | null | undefined
   numerica?: boolean
+  /** Tipo de la columna en el destino (p. ej. «float8»), bajo el título. */
+  tipo?: string
   className?: string
 }
 
@@ -147,20 +149,28 @@ export function CabeceraOrdenable({
   direccion,
   alPulsar,
   numerica,
+  tipo,
   className,
 }: {
   titulo: React.ReactNode
   direccion: Direccion | null
   alPulsar?: () => void
   numerica?: boolean
+  tipo?: string
   className?: string
 }) {
   const Icono = direccion === "asc" ? ArrowUpIcon : direccion === "desc" ? ArrowDownIcon : ArrowUpDownIcon
+  const texto = (
+    <span className={cn("inline-flex flex-col", numerica ? "items-end" : "items-start")}>
+      {titulo}
+      {tipo && <span className="font-mono text-[10px] leading-tight font-normal text-muted-foreground">{tipo}</span>}
+    </span>
+  )
   return (
     <TableHead
       scope="col"
       aria-sort={direccion === "asc" ? "ascending" : direccion === "desc" ? "descending" : undefined}
-      className={cn(numerica && "text-right", className)}
+      className={cn(numerica && "text-right", tipo && "h-auto py-1.5", className)}
     >
       {alPulsar ? (
         <button
@@ -173,11 +183,11 @@ export function CabeceraOrdenable({
             direccion && "text-foreground"
           )}
         >
-          {titulo}
+          {texto}
           <Icono className={cn("size-3.5", !direccion && "opacity-40")} />
         </button>
       ) : (
-        titulo
+        texto
       )}
     </TableHead>
   )
@@ -373,6 +383,7 @@ export function TablaPaginada<T>({
                   key={c.id}
                   titulo={c.titulo}
                   numerica={c.numerica}
+                  tipo={c.tipo}
                   className={c.className}
                   direccion={ordenActivo?.columna === c.id ? ordenActivo.direccion : null}
                   alPulsar={ordenable && (c.valor || orden) ? () => alOrdenar(c.id) : undefined}

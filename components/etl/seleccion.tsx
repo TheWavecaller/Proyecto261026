@@ -12,6 +12,7 @@ import { formatearNumero } from "@/lib/etl/formato"
 import { claveMedicion } from "@/lib/etl/limpieza"
 import type { CampoOrden, Medicion } from "@/lib/etl/tipos"
 import type { PipelineEtl } from "@/hooks/use-pipeline-etl"
+import { PerfilDatos } from "./analisis"
 import { Campo, ListaMensajes } from "./campos"
 import { BotonExportar } from "./exportar"
 import { GraficaMediciones } from "./graficas"
@@ -215,6 +216,7 @@ export function PestanaValidos({ etl }: { etl: PipelineEtl }) {
       </section>
 
       <GraficaMediciones filas={etl.filtradas} />
+      <PerfilDatos filas={etl.filtradas} />
 
       <section aria-label="Selección" className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2 text-sm" aria-live="polite">
